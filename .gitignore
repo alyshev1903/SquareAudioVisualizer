@@ -1,0 +1,23 @@
+# Cartelle generate automaticamente da Projucer/Visual Studio: non vanno versionate,
+# si rigenerano da SquareAudioVisualizer.jucer con "Save and Open in IDE".
+Builds/
+JuceLibraryCode/
+
+# File/cartelle di Visual Studio
+.vs/
+*.user
+*.suo
+ipch/
+*.aps
+*.opendb
+*.db
+
+# Cartelle di build residue
+x64/
+x86/
+Debug/
+Release/
+
+# File di sistema
+Thumbs.db
+.DS_Store
