@@ -3,9 +3,13 @@
 #include "VertexArray.h"
 #include "Shader.h"
 
-extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
+#if JUCE_WINDOWS
+    extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
+    #define ASSERT(x) if (!(x)) { if (::IsDebuggerPresent()) __debugbreak(); }
+#else
+#define ASSERT(x) (void)(x)
+#endif
 
-#define ASSERT(x) if (!(x)) { if (::IsDebuggerPresent()) __debugbreak(); }
 #define GLCall(x) GLClearError();\
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))

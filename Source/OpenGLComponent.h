@@ -2,8 +2,6 @@
 
 #include "JuceHeader.h"
 #include <juce_opengl/juce_opengl.h>
-#include <windows.h>
-#include <GL/gl.h>
 
 #include "SquareGridRenderer.h"
 #include "SquareVisual.h"

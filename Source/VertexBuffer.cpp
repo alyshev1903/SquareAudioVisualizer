@@ -1,6 +1,5 @@
 #include "VertexBuffer.h"
-#include <windows.h>
-#include <GL/gl.h>
+
 #include "Renderer.h"
 
 using namespace ::juce::gl;

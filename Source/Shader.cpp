@@ -5,8 +5,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "String.h"
-
 using namespace ::juce::gl;
 
 Shader::Shader(const std::string& filepath)
