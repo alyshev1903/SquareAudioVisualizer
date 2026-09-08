@@ -28,38 +28,37 @@ private:
 	unsigned int m_Stride;
 public:
 	VertexBufferLayout()
-		: m_Stride(0) {
-	}
+		: m_Stride(0) {}
+
 	template<typename T>
 	void Push(unsigned int count)
 	{
-		static_assert(false);
-	}
-
-	template<>
-	void Push<float>(unsigned int count)
-	{
-		m_Elements.push_back({ count, GL_FLOAT, GL_FALSE });
-		m_Stride += count * VertexBufferElement::GetSizeOfType(GL_FLOAT);
-	}
-
-	template<>
-	void Push<unsigned int>(unsigned int count)
-	{
-		m_Elements.push_back({ count, GL_UNSIGNED_INT, GL_FALSE });
-		m_Stride += count * VertexBufferElement::GetSizeOfType(GL_UNSIGNED_INT);
-	}
-
-	template<>
-	void Push<char>(unsigned int count)
-	{
-		m_Elements.push_back({ count, GL_UNSIGNED_BYTE, GL_TRUE });
-		m_Stride += count * VertexBufferElement::GetSizeOfType(GL_UNSIGNED_BYTE);
+		static_assert(sizeof(T) == 0, "Push non implementata per questo tipo");
 	}
 
 	inline const std::vector<VertexBufferElement>& GetElements() const { return m_Elements; }
 	inline unsigned int GetStride() const { return m_Stride; }
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VertexBufferLayout)
-	
 };
+
+template<>
+inline void VertexBufferLayout::Push<float>(unsigned int count)
+{
+	m_Elements.push_back({ count, GL_FLOAT, GL_FALSE });
+	m_Stride += count * VertexBufferElement::GetSizeOfType(GL_FLOAT);
+}
+
+template<>
+inline void VertexBufferLayout::Push<unsigned int>(unsigned int count)
+{
+	m_Elements.push_back({ count, GL_UNSIGNED_INT, GL_FALSE });
+	m_Stride += count * VertexBufferElement::GetSizeOfType(GL_UNSIGNED_INT);
+}
+
+template<>
+inline void VertexBufferLayout::Push<char>(unsigned int count)
+{
+	m_Elements.push_back({ count, GL_UNSIGNED_BYTE, GL_TRUE });
+	m_Stride += count * VertexBufferElement::GetSizeOfType(GL_UNSIGNED_BYTE);
+}

@@ -7,7 +7,7 @@
     extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
     #define ASSERT(x) if (!(x)) { if (::IsDebuggerPresent()) __debugbreak(); }
 #else
-#define ASSERT(x) (void)(x)
+    #define ASSERT(x) (void)(x)
 #endif
 
 #define GLCall(x) GLClearError();\
