@@ -61,11 +61,12 @@ void OpenGLComponent::pullParameters()
         //camera->GetSensitivity() = sensitivity;
 
     {
-        const juce::ScopedLock sl(textureLock);
-        if (pendingTextureFile != juce::File() && pendingTextureFile != lastLoadedTextureFile)
+        juce::String newTexturePath = sharedAudioData.consumeTexturePathIfChanged(lastSeenTextureVersion);
+        if (newTexturePath.isNotEmpty())
         {
-            bool ok = renderer->loadTexture(pendingTextureFile);
-            lastLoadedTextureFile = pendingTextureFile;
+            juce::File file(newTexturePath);
+            if (file.existsAsFile())
+                renderer->loadTexture(file);
         }
     }
 
@@ -94,8 +95,7 @@ void OpenGLComponent::resized()
 
 void OpenGLComponent::requestTexture(const juce::File& imageFile)
 {
-    const juce::ScopedLock sl(textureLock);
-    pendingTextureFile = imageFile;
+    sharedAudioData.requestTexturePath(imageFile.getFullPathName());
 }
 
 void OpenGLComponent::mouseDown(const juce::MouseEvent& e)

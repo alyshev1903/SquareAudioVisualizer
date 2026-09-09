@@ -30,8 +30,8 @@ private:
 
 	float fifo[fftSize];
 	float fftData[fftSize * 2];
-	int   fifoIndex = 0;
-	bool  nextFFTBlockReady = false;
+	int fifoIndex = 0;
+	bool nextFFTBlockReady = false;
 
 	int channelChoice = DEFAULT_CHANNEL_CHOICE;
 

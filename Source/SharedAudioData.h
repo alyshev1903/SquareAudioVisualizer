@@ -81,6 +81,24 @@ public:
         return n;
     }
 
+    void requestTexturePath(const juce::String& path)
+    {
+        const juce::ScopedLock sl(textureLock);
+        pendingTexturePath = path;
+        ++textureRequestVersion;
+    }
+
+    juce::String consumeTexturePathIfChanged(int& lastSeenVersion) const
+    {
+        const juce::ScopedLock sl(textureLock);
+        if (textureRequestVersion != lastSeenVersion)
+        {
+            lastSeenVersion = textureRequestVersion;
+            return pendingTexturePath;
+        }
+        return {};
+    }
+
     void writeSampleRate(double sr) { sampleRate.store(sr); }
     double readSampleRate() const { return sampleRate.load(); }
 
@@ -93,4 +111,8 @@ private:
     std::array<std::atomic<float>, spectrumBins> spectrum{};
     std::atomic<int> spectrumBinsWritten{ 0 };
     std::atomic<double> sampleRate{ 44100.0 };
+
+    mutable juce::CriticalSection textureLock;
+    juce::String pendingTexturePath;
+    int textureRequestVersion = 0;
 };

@@ -88,7 +88,6 @@ int Pitch::findDominantBin() const
     int maxBin = (int)(maxFreq * fftSize / sampleRate);
     maxBin = juce::jmin(maxBin, (int)fftData.size() - 1);
 
-    // trova il bin con magnitudine massima
     float maxMag = 0.0f;
     int   maxBinIdx = minBin;
 

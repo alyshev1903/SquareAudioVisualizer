@@ -27,12 +27,12 @@ public:
 private:
     void timerCallback() override;
 
-    SquareAgents     agents;
-    float            alpha = 1.0f;
-    String           name;
-    unsigned int     shaderID = 0;
+    SquareAgents agents;
+    float alpha = 1.0f;
+    String name;
+    unsigned int shaderID = 0;
 
-    FFTProcessor     spectrumAnalyzer;
+    FFTProcessor spectrumAnalyzer;
     SharedAudioData* sharedAudioData = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SquareVisual)

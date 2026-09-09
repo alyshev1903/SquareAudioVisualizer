@@ -44,7 +44,7 @@ private:
         repaint();
     }
 
-    float       alpha = 0.0f;
+    float alpha = 0.0f;
     Colour& meterColor;
     SquareVisuals& squareVisuals;
     int  numVisual;

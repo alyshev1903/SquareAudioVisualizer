@@ -39,9 +39,7 @@ private:
 
     juce::Point<int> m_LastMousePos;
 
-    juce::CriticalSection textureLock;
-    juce::File            pendingTextureFile;
-    juce::File            lastLoadedTextureFile;
+    int lastSeenTextureVersion = 0;
 
     int   lastSubdivisions = -1;
     float lastSize = -1.0f;

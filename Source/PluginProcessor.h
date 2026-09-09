@@ -48,7 +48,6 @@ private:
     SquareVisuals squareVisuals;
 
     void parameterChanged(const String& paramID, float newValue) override;
-    void debugVisualParams();
 
 	bool windowOpened = DEFAULT_WINDOW_OPENED;
      

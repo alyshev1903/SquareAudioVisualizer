@@ -114,7 +114,7 @@ void SquareAudioVisualizerAudioProcessor::processBlock (juce::AudioBuffer<float>
 
 void SquareAudioVisualizerAudioProcessor::parameterChanged(const String& paramID, float newValue)
 {
-	// Handle parameter changes here
+	
 }
 
 bool SquareAudioVisualizerAudioProcessor::getWindowOpened()
@@ -152,26 +152,6 @@ void SquareAudioVisualizerAudioProcessor::setStateInformation (const void* data,
     if (xmlState.get() != nullptr)
         if (xmlState->hasTagName(parameters.state.getType()))
             parameters.replaceState(ValueTree::fromXml(*xmlState));
-}
-
-void SquareAudioVisualizerAudioProcessor::debugVisualParams()
-{
-	for (auto& visual : squareVisuals)
-	{
-		DBG("Visual Name: " << visual.getName());
-		for (auto& agent : visual.getAgents())
-		{
-			DBG("Agent Name: " << agent.getParamName());
-			DBG("Feature Type: " << static_cast<int>(agent.getFeature()));
-			DBG("Source Type: " << static_cast<int>(agent.getSourceType()));
-			DBG("Agent Type: " << static_cast<int>(agent.getAgentType()));
-			DBG("Remap Value: " << agent.getRemapValue());
-			DBG("Smoothing Factor: " << agent.getSmoothingFactor());
-			DBG("Threshold: " << agent.getThreshold());
-			/*DBG("Sidechain: " << agent.isSidechain());
-			DBG("Active: " << agent.isActive());*/
-		}
-	}
 }
 
 //==============================================================================

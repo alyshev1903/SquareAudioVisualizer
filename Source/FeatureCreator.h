@@ -17,8 +17,8 @@ public:
         switch (type)
         {
         case FeatureType::ENVELOPE: return std::make_unique<Envelope>(type);
-        case FeatureType::ZCR:      return std::make_unique<ZCR>(type);
-        case FeatureType::PITCH:    return std::make_unique<Pitch>(type);
+        case FeatureType::ZCR: return std::make_unique<ZCR>(type);
+        case FeatureType::PITCH: return std::make_unique<Pitch>(type);
         default:
             return nullptr;
         }

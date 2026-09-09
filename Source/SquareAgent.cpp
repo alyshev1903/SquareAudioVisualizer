@@ -78,7 +78,6 @@ void SquareAgent::computeValue()
                     float fundamental = pitch->getDominantFrequency();
                     const auto& harmonics = pitch->getHarmonics();
 
-                    //scrivere in SharedAudioData
                     sharedAudioData->writePitch(fundamental);
                     sharedAudioData->writeHarmonics(harmonics);
                 }
