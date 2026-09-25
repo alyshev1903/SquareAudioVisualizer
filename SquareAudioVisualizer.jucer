@@ -736,6 +736,16 @@
             <FILE id="puZflR" name="stb_image.h" compile="0" resource="0" file="Source/vendor/stb_image/stb_image.h"/>
           </GROUP>
         </GROUP>
+        <FILE id="PnWfus" name="ColorUtils.h" compile="0" resource="0" file="Source/ColorUtils.h"/>
+        <FILE id="FqKZ10" name="WaterfallRenderer.cpp" compile="1" resource="0"
+              file="Source/WaterfallRenderer.cpp"/>
+        <FILE id="sxU7Dr" name="WaterfallRenderer.h" compile="0" resource="0"
+              file="Source/WaterfallRenderer.h"/>
+        <FILE id="WHONg5" name="CubeRenderer.cpp" compile="1" resource="0"
+              file="Source/CubeRenderer.cpp"/>
+        <FILE id="CCYQ4I" name="CubeRenderer.h" compile="0" resource="0" file="Source/CubeRenderer.h"/>
+        <FILE id="ajCrx0" name="Cube.cpp" compile="1" resource="0" file="Source/Cube.cpp"/>
+        <FILE id="quSLo0" name="Cube.h" compile="0" resource="0" file="Source/Cube.h"/>
         <FILE id="Jbdq1P" name="OpenGLWindow.cpp" compile="1" resource="0"
               file="Source/OpenGLWindow.cpp"/>
         <FILE id="nqnHOZ" name="OpenGLWindow.h" compile="0" resource="0" file="Source/OpenGLWindow.h"/>
@@ -784,7 +794,6 @@
         <FILE id="iR7TTo" name="SquareVisual.cpp" compile="1" resource="0"
               file="Source/SquareVisual.cpp"/>
         <FILE id="PCczwF" name="SquareVisual.h" compile="0" resource="0" file="Source/SquareVisual.h"/>
-        <FILE id="YMmoZq" name="ValueMeter.h" compile="0" resource="0" file="Source/ValueMeter.h"/>
         <FILE id="Rb3ZT4" name="ZCR.cpp" compile="1" resource="0" file="Source/ZCR.cpp"/>
         <FILE id="BtVrlm" name="ZCR.h" compile="0" resource="0" file="Source/ZCR.h"/>
       </GROUP>

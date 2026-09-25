@@ -2,7 +2,9 @@
 
 Pitch::Pitch(FeatureType type)
     : FeaturesExtractor(type)
-{}
+{
+    harmonics.reserve((size_t)maxHarmonics);
+}
 
 Pitch::~Pitch() {}
 

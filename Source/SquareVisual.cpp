@@ -2,7 +2,6 @@
 
 SquareVisual::SquareVisual()
 {
-    startTimer(DEFAULT_FPS);
 }
 
 SquareVisual::~SquareVisual()
@@ -11,7 +10,6 @@ SquareVisual::~SquareVisual()
     {
         agent.deleteFeature();
     }
-    stopTimer();
 }
 
 void SquareVisual::init(SharedAudioData& sharedData)
@@ -45,17 +43,10 @@ void SquareVisual::setName(String newName) { name = newName; }
 
 SquareAgent& SquareVisual::getAgent(int index)
 {
-    jassert(index < MAX_NUM_VISUALS);
+    jassert(index < NUM_AGENTS);
     return agents[index];
 }
 
 SquareAgents& SquareVisual::getAgents() { return agents; }
 float SquareVisual::getAlpha() { return alpha; }
 String SquareVisual::getName() { return name; }
-unsigned int SquareVisual::getShaderID() { return shaderID; }
-
-void SquareVisual::timerCallback()
-{
-    for (auto& agent : agents)
-        agent.computeValue();
-}

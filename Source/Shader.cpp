@@ -107,10 +107,6 @@ void Shader::Bind() const
 	GLCall(glUseProgram(m_RendererID));
 }
 
-void Shader::Unbind() const
-{
-	GLCall(glUseProgram(0));
-}
 
 void Shader::SetUniform1i(const std::string& name, int value)
 {

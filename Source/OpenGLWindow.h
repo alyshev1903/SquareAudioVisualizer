@@ -8,14 +8,16 @@
 class OpenGLWindow : public juce::DocumentWindow
 {
 public:
-    OpenGLWindow(SquareAudioVisualizerAudioProcessor& p, AudioProcessorValueTreeState& vts, SquareVisuals& v);
+    OpenGLWindow(SquareAudioVisualizerAudioProcessor& p, AudioProcessorValueTreeState& vts, SquareVisual& v);
     ~OpenGLWindow() override;
+
+    std::function<void()> onCloseButtonPressed;
 
 private:
     void closeButtonPressed() override;
     void resized()            override;
 
-    SquareVisuals& squareVisuals;
+    SquareVisual& squareVisual;
     std::unique_ptr<OpenGLComponent> openGLComponent;
     SquareAudioVisualizerAudioProcessor& audioProcessor;
 

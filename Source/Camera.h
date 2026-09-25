@@ -24,8 +24,6 @@ public:
 	void ProcessMouseOrbit(glm::vec3 target, float deltaX, float deltaY);
 	void Orbit(glm::vec3 target, float deltaYaw, float deltaPitch);
 
-	float& GetSensitivity() { return m_Sensitivity; }
-
 private:
 	glm::vec3 m_ViewDirection;
 	glm::vec3 m_Up;

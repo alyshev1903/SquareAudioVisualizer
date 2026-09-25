@@ -6,28 +6,45 @@
 SquareAudioVisualizerAudioProcessor::SquareAudioVisualizerAudioProcessor()
     : parameters(*this, nullptr, "PARAMS", Parameters::createParameterLayout())
 {
-    Parameters::addListenerToAllParameters(parameters, this);
+    squareVisual.init(sharedAudioData);
 
-    for (auto& visual : squareVisuals)
-        visual.init(sharedAudioData);
-
-    auto& envelopeAgent = squareVisuals[0].getAgent(Parameters::envelopeAgentIndex);
+    auto& envelopeAgent = squareVisual.getAgent(Parameters::envelopeAgentIndex);
     envelopeAgent.setFeature(FeatureType::ENVELOPE);
     envelopeAgent.setAgentType(AgentType::AUDIO);
     envelopeAgent.setSourceType(SourceType::FLUID);
     envelopeAgent.setActive(true);
 
-    auto& zcrAgent = squareVisuals[0].getAgent(Parameters::zcrAgentIndex);
+    auto& zcrAgent = squareVisual.getAgent(Parameters::zcrAgentIndex);
     zcrAgent.setFeature(FeatureType::ZCR);
     zcrAgent.setAgentType(AgentType::AUDIO);
     zcrAgent.setSourceType(SourceType::FLUID);
     zcrAgent.setActive(true);
+    zcrAgent.setRemapValue(4.0f);
+    zcrAgent.setSmoothingFactor(0.8f);
 
-    auto& pitchAgent = squareVisuals[0].getAgent(Parameters::pitchAgentIndex);
+    auto& pitchAgent = squareVisual.getAgent(Parameters::pitchAgentIndex);
     pitchAgent.setFeature(FeatureType::PITCH);
     pitchAgent.setAgentType(AgentType::AUDIO);
     pitchAgent.setSourceType(SourceType::FLUID);
     pitchAgent.setActive(true);
+
+    auto& breatheAgent = squareVisual.getAgent(Parameters::cubeBreatheAgentIndex);
+    breatheAgent.setFeature(FeatureType::ENVELOPE);
+    breatheAgent.setAgentType(AgentType::AUDIO);
+    breatheAgent.setSourceType(SourceType::FLUID);
+    breatheAgent.setActive(true);
+
+    auto& cubePointSizeAgent = squareVisual.getAgent(Parameters::cubePointSizeAgentIndex);
+    cubePointSizeAgent.setFeature(FeatureType::ZCR);
+    cubePointSizeAgent.setAgentType(AgentType::AUDIO);
+    cubePointSizeAgent.setSourceType(SourceType::FLUID);
+    cubePointSizeAgent.setActive(true);
+
+    auto& cubeRotationAgent = squareVisual.getAgent(Parameters::cubeRotationAgentIndex);
+    cubeRotationAgent.setFeature(FeatureType::PITCH);
+    cubeRotationAgent.setAgentType(AgentType::AUDIO);
+    cubeRotationAgent.setSourceType(SourceType::FLUID);
+    cubeRotationAgent.setActive(true);
 }
 
 
@@ -77,16 +94,11 @@ void SquareAudioVisualizerAudioProcessor::changeProgramName (int index, const ju
 //==============================================================================
 void SquareAudioVisualizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-	for (auto& visual : squareVisuals)
-	{
-		for (auto& agent : visual.getAgents())
-		{
-            if (agent.isActive() && agent.getAgentType() == AgentType::AUDIO) {
-                agent.prepareToPlay(sampleRate);
-            }
-			
-		}
-	}
+    for (auto& agent : squareVisual.getAgents())
+    {
+        if (agent.isActive() && agent.getAgentType() == AgentType::AUDIO)
+            agent.prepareToPlay(sampleRate);
+    }
 }
 
 void SquareAudioVisualizerAudioProcessor::releaseResources()
@@ -102,20 +114,12 @@ void SquareAudioVisualizerAudioProcessor::processBlock (juce::AudioBuffer<float>
     float inputLevelDb = *parameters.getRawParameterValue(Parameters::nameInputLevel);
     float inputGain = juce::Decibels::decibelsToGain(inputLevelDb);
 
+    squareVisual.processAudioBlock(buffer, sr, inputGain);
 
-    squareVisuals[0].processAudioBlock(buffer, sr, inputGain);
-
-    for (auto& visual : squareVisuals)
-    {
-        for (auto& agent : visual.getAgents())
-            agent.processBlock(buffer, sr);
-    }
+    for (auto& agent : squareVisual.getAgents())
+        agent.processBlock(buffer, sr);
 }
 
-void SquareAudioVisualizerAudioProcessor::parameterChanged(const String& paramID, float newValue)
-{
-	
-}
 
 bool SquareAudioVisualizerAudioProcessor::getWindowOpened()
 {
@@ -135,7 +139,7 @@ bool SquareAudioVisualizerAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SquareAudioVisualizerAudioProcessor::createEditor()
 {
-    return new WrappedPluginEditor (*this, parameters, squareVisuals);
+    return new WrappedPluginEditor(*this, parameters, squareVisual);
 }
 
 //==============================================================================

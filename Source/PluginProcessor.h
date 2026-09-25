@@ -4,9 +4,7 @@
 #include "SquareVisual.h"
 #include "SharedAudioData.h"
 
-typedef std::array <SquareVisual, MAX_NUM_VISUALS > SquareVisuals;
-
-class SquareAudioVisualizerAudioProcessor : public juce::AudioProcessor, public juce::AudioProcessorValueTreeState::Listener
+class SquareAudioVisualizerAudioProcessor : public juce::AudioProcessor
 {
 public:
     SquareAudioVisualizerAudioProcessor();
@@ -45,9 +43,7 @@ public:
 private:
     AudioProcessorValueTreeState parameters;
 	SharedAudioData sharedAudioData;
-    SquareVisuals squareVisuals;
-
-    void parameterChanged(const String& paramID, float newValue) override;
+    SquareVisual squareVisual;
 
 	bool windowOpened = DEFAULT_WINDOW_OPENED;
      

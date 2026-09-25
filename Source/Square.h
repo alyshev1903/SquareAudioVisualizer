@@ -23,12 +23,11 @@ public:
 
     std::vector<GridVertex> generatePointGrid() const;
 
-    void applyColumnSpectrum(std::vector<GridVertex>& vertices,const std::vector<float>& bandValues, float displacementScale, float pointSize) const;
+    void applyColumnSpectrum(std::vector<GridVertex>& vertices,const std::vector<float>& bandValues, float displacementScale, float pointSize, float hueShift) const;
 
     static void buildLayout(VertexBufferLayout& layout);
 
     int getSubdivisions() const { return subdivisions; }
-    float getSize() const { return size; }
 
 private:
     int   subdivisions;

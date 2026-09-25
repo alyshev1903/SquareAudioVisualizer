@@ -66,7 +66,7 @@ void SquareGridRenderer::updateFromAudio()
         currentPointSize = pointSize * (1.0f + zcrValue * 1.5f);
     }
 
-    square->applyColumnSpectrum(vertices, bands, effectiveDisplacement, currentPointSize);
+    square->applyColumnSpectrum(vertices, bands, effectiveDisplacement, currentPointSize, colorSeed);
 
     if (pitchEffectEnabled)
         highlightPitchColumn();
@@ -140,12 +140,6 @@ void SquareGridRenderer::setPointSize(float newPointSize)
 void SquareGridRenderer::setDisplacementScale(float newScale)
 {
     displacementScale = newScale;
-}
-
-void SquareGridRenderer::setFrequencyRange(float newMinHz, float newMaxHz)
-{
-    minFreqHz = newMinHz;
-    maxFreqHz = newMaxHz;
 }
 
 bool SquareGridRenderer::loadTexture(const juce::File& imageFile)

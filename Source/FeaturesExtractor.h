@@ -34,8 +34,6 @@ public:
 private:
 protected:
     FeatureType type;
-    int numVisual;
-    int numAgent;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FeaturesExtractor)
 };

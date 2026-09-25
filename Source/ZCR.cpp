@@ -13,25 +13,28 @@ ZCR::~ZCR()
 
 void ZCR::processSample(float sample)
 {
-	audioBuffer.add(sample);
-	if (audioBuffer.size() > maxBufferSize)
+	audioBuffer[(size_t)bufferIndex] = sample;
+	++bufferIndex;
+
+	if (bufferIndex >= maxBufferSize)
 	{
-		processData(audioBuffer);
-		audioBuffer.clear();
+		processData();
+		bufferIndex = 0;
 	}
 }
 
-void ZCR::processData(juce::Array<float> audioBuffer)
+void ZCR::processData()
 {
 	int zeroCrossings = 0;
-	for (int i = 1; i < audioBuffer.size(); ++i)
+	for (int i = 1; i < maxBufferSize; ++i)
 	{
-		if ((audioBuffer[i] >= 0.0f && audioBuffer[i-1] < 0.0f) || (audioBuffer[i - 1] < 0.0f && audioBuffer[i] >= 0.0f))
+		if ((audioBuffer[(size_t)i] >= 0.0f && audioBuffer[(size_t)i - 1] < 0.0f) ||
+			(audioBuffer[(size_t)i - 1] < 0.0f && audioBuffer[(size_t)i] >= 0.0f))
 		{
 			++zeroCrossings;
 		}
 	}
-	zcr = static_cast<float>(zeroCrossings) / static_cast<float>(audioBuffer.size() - 1);
+	zcr = static_cast<float>(zeroCrossings) / static_cast<float>(maxBufferSize - 1);
 }
 
 float ZCR::getValue()

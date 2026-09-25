@@ -26,7 +26,7 @@ public:
     void deleteFeature();
 
     void prepareToPlay(double sampleRate);
-    void processBlock(juce::AudioBuffer<float> buffer, double sampleRate);
+    void processBlock(juce::AudioBuffer<float>& buffer, double sampleRate);
     void computeValue();
     float getValue();
 
@@ -37,24 +37,12 @@ public:
     void setRemapValue(float newValue);
     void setSmoothingFactor(float newValue);
     void setThreshold(float newValue);
-    void setBpm(double newValue);
-    void setPpqPeriod(double newValue);
-    void setSideChain(bool newValue);
-    void setActive(bool newValue);
-    void setParamName(String newName);
+	void setActive(bool newValue);
 
-    FeatureType getFeature();
-    SourceType  getSourceType();
     AgentType   getAgentType();
     float getRemapValue();
-    float getSmoothingFactor();
-    float getMinFreq();
-    float getMaxFreq();
-    float getFeatureValue();
     float getThreshold();
-    bool  isSidechain();
     bool  isActive();
-    String getParamName();
 private:
     String paramName;
     FeatureType   featureType = DEFAULT_FEATURE_TYPE;
@@ -69,15 +57,10 @@ private:
     Atomic<float> value = 0.0f;
     Atomic<float> featureValue = 0.0f;
 
-    bool  sidechainSource = false;
     int   numChannel = DEFAULT_NUM_CHANNEL;
     bool  active = DEFAULT_AGENT_ACTIVE;
 
     int   agentIndex = -1;
-
-    double bpm = 0.0;
-    double ppqPeriod = 0.0;
-    double syncPhaseIncrement = 0.0;
 
     std::unique_ptr<FeaturesExtractor> featuresExtractor;
 

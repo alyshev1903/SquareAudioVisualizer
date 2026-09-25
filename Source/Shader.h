@@ -24,7 +24,6 @@ public:
 	~Shader();
 
 	void Bind() const;
-	void Unbind() const;
 
 	void SetUniform1i(const std::string& name, int value);
 	void SetUniform1f(const std::string& name, float value);

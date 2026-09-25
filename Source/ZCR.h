@@ -16,13 +16,13 @@ public:
 	float getValue() override;
 	String getName() override;
 
-	void processData(juce::Array<float> audioBuffer);
+	void processData();
 
 private:
-
-	juce::Array<float> audioBuffer;
-	int maxBufferSize = 256;
-	float zcr;
+	static constexpr int maxBufferSize = 256;
+	std::array<float, maxBufferSize> audioBuffer{};
+	int bufferIndex = 0;
+	float zcr = 0.0f;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ZCR)
 };

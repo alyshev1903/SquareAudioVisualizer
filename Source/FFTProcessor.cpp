@@ -84,7 +84,8 @@ std::vector<float> FFTProcessor::computeBands(const float* magnitudes,
         for (int bin = binLo; bin <= binHi; ++bin)
             peak = juce::jmax(peak, magnitudes[bin]);
 
-        bands[(size_t)band] = std::sqrt(juce::jlimit(0.0f, 1.0f, peak)); //Normalizzazione FFT
+        constexpr float magnitudeCeiling = 4.0f;
+        bands[(size_t)band] = std::sqrt(juce::jlimit(0.0f, magnitudeCeiling, peak) / magnitudeCeiling);
     }
 
     return bands;

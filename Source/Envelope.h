@@ -19,8 +19,7 @@ public:
 
 private:
 
-	juce::Array<float> audioBuffer;
 	float smoothingFactor = 0.999f;
-	float envelope;
+	float envelope = 0.0f;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Envelope)
 };

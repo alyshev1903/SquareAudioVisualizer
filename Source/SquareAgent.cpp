@@ -22,7 +22,7 @@ void SquareAgent::prepareToPlay(double sampleRate)
     featuresExtractor->setSampleRate(sampleRate);
 }
 
-void SquareAgent::processBlock(juce::AudioBuffer<float> buffer, double sampleRate)
+void SquareAgent::processBlock(juce::AudioBuffer<float>& buffer, double sampleRate)
 {
     if (agentType == AgentType::AUDIO && isActive())
     {
@@ -151,14 +151,6 @@ void SquareAgent::setRemapValue(float newValue)
 {
     remapValue.set(newValue);
 }
-void SquareAgent::setBpm(double newValue)
-{
-    bpm = newValue;
-}
-void SquareAgent::setPpqPeriod(double newValue)
-{
-    ppqPeriod = newValue;
-}
 void SquareAgent::setSmoothingFactor(float newValue)
 {
     smoothingFactor = newValue;
@@ -168,27 +160,9 @@ void SquareAgent::setThreshold(float newValue)
     threshold.set(newValue);
 }
 
-void SquareAgent::setParamName(String newName)
-{
-    paramName = newName;
-}
-void SquareAgent::setSideChain(bool newValue)
-{
-    sidechainSource = newValue;
-}
-
 void SquareAgent::setActive(bool newValue)
 {
     active = newValue;
-}
-
-FeatureType SquareAgent::getFeature()
-{
-    return featureType;
-}
-SourceType SquareAgent::getSourceType()
-{
-    return sourceType;
 }
 
 AgentType SquareAgent::getAgentType()
@@ -200,40 +174,16 @@ float SquareAgent::getValue()
 {
     return value.get();
 }
-float SquareAgent::getFeatureValue()
-{
-    return featureValue.get();
-}
 
 float SquareAgent::getRemapValue()
 {
     return remapValue.get();
-}
-float SquareAgent::getSmoothingFactor()
-{
-    return smoothingFactor.get();
-}
-float SquareAgent::getMinFreq()
-{
-    return minFreq.get();
-}
-float SquareAgent::getMaxFreq()
-{
-    return maxFreq.get();
 }
 float SquareAgent::getThreshold()
 {
     return threshold.get();
 }
 
-String SquareAgent::getParamName()
-{
-    return paramName;
-}
-bool  SquareAgent::isSidechain()
-{
-    return sidechainSource;
-}
 bool  SquareAgent::isActive()
 {
     return active;

@@ -1,12 +1,12 @@
 #include "OpenGLWindow.h"
 
-OpenGLWindow::OpenGLWindow(SquareAudioVisualizerAudioProcessor& p, AudioProcessorValueTreeState& vts, SquareVisuals& s)
-    : DocumentWindow("OpenGL Window", juce::Colours::lightgrey, DocumentWindow::allButtons), squareVisuals(s), audioProcessor(p)
+OpenGLWindow::OpenGLWindow(SquareAudioVisualizerAudioProcessor& p, AudioProcessorValueTreeState& vts, SquareVisual& s)
+    : DocumentWindow("OpenGL Window", juce::Colours::lightgrey, DocumentWindow::allButtons), squareVisual(s), audioProcessor(p)
 {
-    openGLComponent.reset(new OpenGLComponent(squareVisuals[0], audioProcessor.getSharedAudioData(), vts));
+    openGLComponent.reset(new OpenGLComponent(squareVisual, audioProcessor.getSharedAudioData(), vts));
     setUsingNativeTitleBar(true);
     openGLComponent->setSize(960, 540);
-    setContentOwned(openGLComponent.get(), true);
+    setContentNonOwned(openGLComponent.get(), true);
     setResizable(true, false);
     setSize(960, 540);
     setVisible(true);
@@ -20,7 +20,8 @@ OpenGLWindow::~OpenGLWindow()
 
 void OpenGLWindow::closeButtonPressed()
 {
-    delete this;
+    if (onCloseButtonPressed)
+        onCloseButtonPressed();
 }
 
 void OpenGLWindow::resized()

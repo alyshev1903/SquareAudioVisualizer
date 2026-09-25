@@ -1,35 +1,11 @@
 #include "Square.h"
+#include "ColorUtils.h"
 
 using namespace ::juce::gl;
 
 namespace
 {
     constexpr float kDefaultPointSize = 3.0f;
-
-    struct ColorStop { float r, g, b; };
-
-    void heatColor(float t, float& r, float& g, float& b)
-    {
-        t = juce::jlimit(0.0f, 1.0f, t);
-
-        static const ColorStop stops[] = {
-            { 0.05f, 0.05f, 0.30f },
-            { 0.10f, 0.55f, 0.90f }, 
-            { 0.15f, 0.85f, 0.25f },
-            { 0.95f, 0.85f, 0.10f },
-            { 0.95f, 0.15f, 0.10f } 
-        };
-        constexpr int numStops = 5;
-
-        float scaled = t * (float)(numStops - 1);
-        int   i0 = juce::jlimit(0, numStops - 2, (int)scaled);
-        int   i1 = i0 + 1;
-        float frac = scaled - (float)i0;
-
-        r = stops[i0].r * (1.0f - frac) + stops[i1].r * frac;
-        g = stops[i0].g * (1.0f - frac) + stops[i1].g * frac;
-        b = stops[i0].b * (1.0f - frac) + stops[i1].b * frac;
-    }
 }
 
 Square::Square(int subdivisionsIn, float sizeIn)
@@ -64,7 +40,7 @@ std::vector<GridVertex> Square::generatePointGrid() const
     return vertices;
 }
 
-void Square::applyColumnSpectrum(std::vector<GridVertex>& vertices, const std::vector<float>& bandValues, float displacementScale, float pointSize) const
+void Square::applyColumnSpectrum(std::vector<GridVertex>& vertices, const std::vector<float>& bandValues, float displacementScale, float pointSize, float hueShift) const
 {
     if (bandValues.empty())
         return;
@@ -82,7 +58,7 @@ void Square::applyColumnSpectrum(std::vector<GridVertex>& vertices, const std::v
             GridVertex& vert = vertices[(size_t)(i * cols + j)];
             vert.zOffset = value * displacementScale;
             vert.pointSize = pointSize;
-            heatColor(value, vert.r, vert.g, vert.b);
+            ColorUtils::heatColor(value, vert.r, vert.g, vert.b, hueShift);
         }
     }
 }

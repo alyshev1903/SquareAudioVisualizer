@@ -36,7 +36,7 @@ void Camera::Orbit(glm::vec3 target, float deltaYaw, float deltaPitch)
 	float radius = glm::length(offset);
 
 	float yaw = atan2(offset.z, offset.x);
-	float pitch = asin(offset.y / radius);
+	float pitch = asin(glm::clamp(offset.y / radius, -1.0f, 1.0f));
 
 	yaw += glm::radians(deltaYaw);
 	pitch += glm::radians(deltaPitch);

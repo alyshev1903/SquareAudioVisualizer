@@ -10,7 +10,7 @@
 class SharedAudioData
 {
 public:
-    static constexpr int maxAgents = MAX_NUM_VISUALS;
+    static constexpr int maxAgents = NUM_AGENTS;
     static constexpr int maxHarmonics = 6;
     static constexpr int spectrumBins = FFTProcessor::fftSize / 2;
 

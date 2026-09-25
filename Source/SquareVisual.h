@@ -4,9 +4,9 @@
 #include "FFTProcessor.h"
 #include "SharedAudioData.h"
 
-typedef std::array<SquareAgent, MAX_NUM_VISUALS>    SquareAgents;
+typedef std::array<SquareAgent, NUM_AGENTS>    SquareAgents;
 
-class SquareVisual : public Timer
+class SquareVisual
 {
 public:
     SquareVisual();
@@ -20,17 +20,15 @@ public:
 
     float getAlpha();
     String getName();
-    unsigned int getShaderID();
+
     SquareAgent& getAgent(int index);
     SquareAgents& getAgents();
 
 private:
-    void timerCallback() override;
 
     SquareAgents agents;
     float alpha = 1.0f;
     String name;
-    unsigned int shaderID = 0;
 
     FFTProcessor spectrumAnalyzer;
     SharedAudioData* sharedAudioData = nullptr;
