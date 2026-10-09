@@ -40,13 +40,25 @@ private:
     juce::Slider colorSeedSlider;
     juce::Label  colorSeedLabel;
 
+    juce::Slider   lfoRateSlider;
+    juce::Label    lfoRateLabel, lfoTargetLabel;
+
+    juce::Slider   gateThresholdSlider;
+    juce::Label    gateThresholdLabel, gateTargetLabel;
+
+    juce::Slider lowCutSlider, highCutSlider;
+    juce::Label  lowCutLabel, highCutLabel;
+
     juce::ComboBox pointOrTextureBox;
     juce::ComboBox dimensionModeBox;
     juce::ComboBox mode3DBox;
+    juce::ComboBox lfoTargetBox, lfoShapeBox, lfoDivisionBox;
+    juce::ComboBox gateTargetBox;
     juce::TextButton loadTextureButton{ "Load texture..." };
 	juce::TextButton OpenGLWindowButton{ "Open external Window" };
     juce::ToggleButton zcrToggle{ "ZCR"};
     juce::ToggleButton pitchToggle{ "Pitch" };
+    juce::ToggleButton lfoSyncToggle{ "Sync" };
 
     using ButtonAttachment = AudioProcessorValueTreeState::ButtonAttachment;
     using SliderAttachment = AudioProcessorValueTreeState::SliderAttachment;
@@ -56,9 +68,19 @@ private:
     std::unique_ptr<SliderAttachment> subdivisionsAttachment, sizeAttachment, pointSizeAttachment, inputLevelAttachment;
     std::unique_ptr<ComboBoxAttachment> pointOrTextureAttachment;
     std::unique_ptr<ComboBoxAttachment> dimensionModeAttachment, mode3DAttachment;
+
     std::unique_ptr<SliderAttachment> cubeSubdivisionsAttachment, cubeSizeAttachment, cubePointSizeAttachment, cubeDisplacementAttachment, cubeRotationSpeedAttachment;
     std::unique_ptr<SliderAttachment> waterfallSubdivisionsAttachment, waterfallSizeAttachment, waterfallPointSizeAttachment, waterfallDisplacementAttachment;
     std::unique_ptr<SliderAttachment> colorSeedAttachment;
+
+    std::unique_ptr<SliderAttachment>   lfoRateAttachment;
+    std::unique_ptr<ComboBoxAttachment> lfoTargetAttachment, lfoShapeAttachment, lfoDivisionAttachment;
+    std::unique_ptr<ButtonAttachment>   lfoSyncAttachment;
+
+    std::unique_ptr<SliderAttachment>   gateThresholdAttachment;
+    std::unique_ptr<ComboBoxAttachment> gateTargetAttachment;
+
+    std::unique_ptr<SliderAttachment> lowCutAttachment, highCutAttachment;
 
     std::unique_ptr<OpenGLWindow> openGLWindow;
 

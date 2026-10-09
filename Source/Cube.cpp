@@ -43,7 +43,7 @@ std::vector<GridVertex> Cube::buildVertexData(const std::vector<float>& bands,fl
     auto bandIndexFor = [&](float coord) -> int
     {
         float t = (coord + half) / size;
-        int idx = (int)(t * (float)(numBands - 1));
+        int idx = juce::roundToInt(t * (float)(numBands - 1));
         return juce::jlimit(0, numBands - 1, idx);
     };
 

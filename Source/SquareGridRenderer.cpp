@@ -59,40 +59,66 @@ void SquareGridRenderer::updateFromAudio()
     float envelopeValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::envelopeAgentIndex));
     float effectiveDisplacement = displacementScale * (0.3f + 0.7f * envelopeValue);
 
+    float lfoValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::lfoAgentIndex));
+    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f);
+
     float currentPointSize = pointSize;
-    if (zcrEffectEnabled)
+    if (zcrEffectEnabled || lfoTarget == Parameters::lfoTarget2DPointSize)
     {
-        float zcrValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::zcrAgentIndex));
-        currentPointSize = pointSize * (1.0f + zcrValue * 1.5f);
+        float pointSizeValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(
+            Parameters::modulationSource(lfoTarget, Parameters::lfoTarget2DPointSize, Parameters::zcrAgentIndex)));
+        currentPointSize = pointSize * (1.0f + pointSizeValue * 1.5f);
     }
 
-    square->applyColumnSpectrum(vertices, bands, effectiveDisplacement, currentPointSize, colorSeed);
+    square->applyColumnSpectrum(vertices, bands, effectiveDisplacement, currentPointSize, hue);
 
     if (pitchEffectEnabled)
-        highlightPitchColumn();
+        highlightPitchColumns(currentPointSize);
 
     vertexBuffer->SetData(vertices.data(), (unsigned int)(vertices.size() * sizeof(GridVertex)));
 }
 
-void SquareGridRenderer::highlightPitchColumn()
+int SquareGridRenderer::columnForFrequency(float hz) const
+{
+    float logMin = std::log10(juce::jmax(1.0f, minFreqHz));
+    float logMax = std::log10(juce::jmax(minFreqHz + 1.0f, maxFreqHz));
+    float t = (std::log10(hz) - logMin) / (logMax - logMin);
+
+    int cols = subdivisions + 1;
+    return juce::jlimit(0, cols - 1, (int)std::round(t * (float)(cols - 1)));
+}
+
+void SquareGridRenderer::highlightColumn(int column, float brightness, float basePointSize, float sizeBoost)
+{
+    int cols = subdivisions + 1;
+    for (int i = 0; i < cols; ++i)
+    {
+        GridVertex& vert = vertices[(size_t)(i * cols + column)];
+        vert.r += (1.0f - vert.r) * brightness;
+        vert.g += (1.0f - vert.g) * brightness;
+        vert.b += (1.0f - vert.b) * brightness;
+        vert.pointSize = juce::jmax(vert.pointSize, basePointSize * sizeBoost);
+    }
+}
+
+void SquareGridRenderer::highlightPitchColumns(float basePointSize)
 {
     float pitchHz = sharedAudioData.readPitch();
     if (pitchHz < minFreqHz || pitchHz > maxFreqHz)
         return;
 
-    float logMin = std::log10(juce::jmax(1.0f, minFreqHz));
-    float logMax = std::log10(juce::jmax(minFreqHz + 1.0f, maxFreqHz));
-    float t = (std::log10(pitchHz) - logMin) / (logMax - logMin);
-
-    int cols = subdivisions + 1;
-    int highlightCol = juce::jlimit(0, cols - 1, (int)std::round(t * (float)(cols - 1)));
-
-    for (int i = 0; i < cols; ++i)
+    int numHarmonics = sharedAudioData.readHarmonicCount();
+    for (int h = 0; h < numHarmonics; ++h)
     {
-        GridVertex& vert = vertices[(size_t)(i * cols + highlightCol)];
-        vert.r = vert.g = vert.b = 1.0f;
-        vert.pointSize *= 1.8f;
+        float hz = sharedAudioData.readHarmonic(h);
+        if (hz < minFreqHz || hz > maxFreqHz)
+            continue;
+
+        float fade = 1.0f - (float)h / (float)(numHarmonics + 1);
+        highlightColumn(columnForFrequency(hz), 0.6f * fade, basePointSize, 1.0f + 0.4f * fade);
     }
+
+    highlightColumn(columnForFrequency(pitchHz), 1.0f, basePointSize, 1.8f);
 }
 
 void SquareGridRenderer::render(int currentWidth, int currentHeight)

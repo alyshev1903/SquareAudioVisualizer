@@ -33,7 +33,13 @@ void SquareVisual::processAudioBlock(const juce::AudioBuffer<float>& buffer, dou
     if (spectrumAnalyzer.getNextFFTBlockReady())
     {
         spectrumAnalyzer.computeFFT();
-        sharedAudioData->writeSpectrum(spectrumAnalyzer.getFFTData(), FFTProcessor::fftSize / 2);
+        float* fftData = spectrumAnalyzer.getFFTData();
+
+        sharedAudioData->writeSpectrum(fftData, FFTProcessor::fftSize / 2);
+
+        for (auto& agent : agents)
+            agent.processSpectrum(fftData);
+
         spectrumAnalyzer.resetFFTBlock();
     }
 }

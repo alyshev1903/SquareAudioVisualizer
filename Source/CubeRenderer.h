@@ -28,6 +28,7 @@ public:
     void setDisplacementScale(float newScale);
     void setColorSeed(float seed) { colorSeed = seed;}
     void setRotationSpeed(float speed) { baseRotationSpeed = speed; }
+    void setLfoTarget(int target) { lfoTarget = target; }
 
     Camera* getCamera() {return camera.get(); }
 
@@ -53,6 +54,7 @@ private:
     float maxFreqHz = Parameters::maxFreqAudible;
     float colorSeed = 0.0f;
 	float baseRotationSpeed = 0.01f;
+    int lfoTarget = Parameters::lfoTargetOff;
 
     float     rotationAngle = 0.0f;
     glm::vec3 translation = glm::vec3(0.0f);

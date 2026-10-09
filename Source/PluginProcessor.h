@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "SquareVisual.h"
 #include "SharedAudioData.h"
+#include "BandFilter.h"
 
 class SquareAudioVisualizerAudioProcessor : public juce::AudioProcessor
 {
@@ -44,6 +45,9 @@ private:
     AudioProcessorValueTreeState parameters;
 	SharedAudioData sharedAudioData;
     SquareVisual squareVisual;
+
+    juce::AudioBuffer<float> monoBuffer;
+    BandFilter bandFilter;
 
 	bool windowOpened = DEFAULT_WINDOW_OPENED;
      

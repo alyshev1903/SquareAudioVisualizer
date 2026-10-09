@@ -33,7 +33,5 @@ private:
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
 
-	int channelChoice = DEFAULT_CHANNEL_CHOICE;
-
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FFTProcessor)
 };

@@ -39,6 +39,51 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
     setupKnob(colorSeedSlider, colorSeedLabel, "Color");
     setupKnob(inputLevelSlider, inputLevelLabel, "Input Level");
 
+    setupKnob(lfoRateSlider, lfoRateLabel, "LFO Rate");
+    lfoRateSlider.setTextValueSuffix(" Hz");
+
+    setupKnob(gateThresholdSlider, gateThresholdLabel, "Gate Threshold");
+
+    lfoTargetLabel.setText("LFO target", juce::dontSendNotification);
+    lfoTargetLabel.setFont(juce::Font(11.0f));
+    lfoTargetLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(lfoTargetLabel);
+
+    lfoTargetBox.addItemList(Parameters::LfoTargetOptions, 1);
+    addAndMakeVisible(lfoTargetBox);
+    lfoShapeBox.addItemList(Parameters::LfoShapeOptions, 1);
+    addAndMakeVisible(lfoShapeBox);
+    lfoDivisionBox.addItemList(Parameters::LfoDivisionOptions, 1);
+    addAndMakeVisible(lfoDivisionBox);
+    addAndMakeVisible(lfoSyncToggle);
+
+    gateTargetLabel.setText("Gate target", juce::dontSendNotification);
+    gateTargetLabel.setFont(juce::Font(11.0f));
+    gateTargetLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(gateTargetLabel);
+
+    gateTargetBox.addItemList(Parameters::GateTargetOptions, 1);
+    addAndMakeVisible(gateTargetBox);
+
+    for (auto* s : { &lowCutSlider, &highCutSlider })
+    {
+        s->setSliderStyle(juce::Slider::LinearHorizontal);
+        s->setTextBoxStyle(juce::Slider::TextBoxRight, false, 70, 20);
+        s->setTextValueSuffix(" Hz");
+        s->setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+        s->setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::transparentBlack);
+        addAndMakeVisible(*s);
+    }
+
+    lowCutLabel.setText("Low cut", juce::dontSendNotification);
+    highCutLabel.setText("High cut", juce::dontSendNotification);
+    for (auto* l : { &lowCutLabel, &highCutLabel })
+    {
+        l->setFont(juce::Font(11.0f));
+        l->setJustificationType(juce::Justification::centredRight);
+        addAndMakeVisible(*l);
+    }
+
     pointOrTextureBox.addItemList(Parameters::PointOrTextureOptions, 1);
     addAndMakeVisible(pointOrTextureBox);
 
@@ -85,6 +130,19 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
     waterfallDisplacementAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameWaterfallDisplacement, waterfallDisplacementSlider);
 
     colorSeedAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameColorSeed, colorSeedSlider);
+
+    lfoTargetAttachment = std::make_unique<ComboBoxAttachment>(valueTreeState, Parameters::nameLfoTarget, lfoTargetBox);
+    lfoShapeAttachment = std::make_unique<ComboBoxAttachment>(valueTreeState, Parameters::nameLfoShape, lfoShapeBox);
+    lfoDivisionAttachment = std::make_unique<ComboBoxAttachment>(valueTreeState, Parameters::nameLfoDivision, lfoDivisionBox);
+    lfoRateAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameLfoRate, lfoRateSlider);
+    lfoSyncAttachment = std::make_unique<ButtonAttachment>(valueTreeState, Parameters::nameLfoSync, lfoSyncToggle);
+
+    gateTargetAttachment = std::make_unique<ComboBoxAttachment>(valueTreeState, Parameters::nameGateTarget, gateTargetBox);
+    gateThresholdAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameGateThreshold, gateThresholdSlider);
+
+    lowCutAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameFilterLowCut, lowCutSlider);
+    highCutAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameFilterHighCut, highCutSlider);
+
     Theme.setAccentHue((float)colorSeedSlider.getValue());
 
     colorSeedSlider.onValueChange = [this]
@@ -97,6 +155,7 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
 
     dimensionModeBox.onChange = [this] { updateControlVisibility(); };
     mode3DBox.onChange = [this] { updateControlVisibility(); };
+    lfoSyncToggle.onClick = [this] { updateControlVisibility(); };
     updateControlVisibility();
 
     addAndMakeVisible(m_GLComponent);
@@ -140,6 +199,10 @@ void SquareAudioVisualizerAudioProcessorEditor::updateControlVisibility()
         (juce::Component*)&waterfallDisplacementLabel })
         c->setVisible(showWaterfall);
 
+    const bool lfoSync = lfoSyncToggle.getToggleState();
+    lfoRateSlider.setVisible(!lfoSync);
+    lfoRateLabel.setVisible(!lfoSync);
+    lfoDivisionBox.setVisible(lfoSync);
     resized();
 }
 
@@ -206,10 +269,43 @@ void SquareAudioVisualizerAudioProcessorEditor::resized()
     inputLevelSlider.setBounds(bigKnobRow.withSizeKeepingCentre(bigKnobSize, bigKnobSize));
     inputLevelLabel.setBounds(bigKnobRow.withSizeKeepingCentre(bigKnobSize + 40, labelHeight).translated(0, -bigKnobSize / 2 - labelHeight));
 
+    auto lfoArea = bigKnobRow.removeFromRight(400);
+
+    auto rateSlot = lfoArea.removeFromLeft(84);
+    lfoRateLabel.setBounds(rateSlot.removeFromTop(labelHeight));
+    lfoRateSlider.setBounds(rateSlot.withSizeKeepingCentre(knobSize, knobSize));
+    lfoDivisionBox.setBounds(rateSlot.withSizeKeepingCentre(rateSlot.getWidth(), 28));
+
+    lfoArea.removeFromLeft(16);
+    lfoTargetLabel.setBounds(lfoArea.removeFromTop(labelHeight));
+    lfoTargetBox.setBounds(lfoArea.removeFromTop(28));
+    lfoArea.removeFromTop(8);
+    auto lfoRow = lfoArea.removeFromTop(28);
+    lfoShapeBox.setBounds(lfoRow.removeFromLeft(140));
+    lfoRow.removeFromLeft(10);
+    lfoSyncToggle.setBounds(lfoRow.removeFromLeft(90));
+
+    auto gateArea = bigKnobRow.removeFromLeft(400);
+
+    auto thresholdSlot = gateArea.removeFromRight(84);
+    gateThresholdLabel.setBounds(thresholdSlot.removeFromTop(labelHeight));
+    gateThresholdSlider.setBounds(thresholdSlot.withSizeKeepingCentre(knobSize, knobSize));
+
+    gateArea.removeFromRight(16);
+    gateTargetLabel.setBounds(gateArea.removeFromTop(labelHeight));
+    gateTargetBox.setBounds(gateArea.removeFromTop(28));
+
     controlsArea.removeFromTop(14);
 
     auto bottomRow = controlsArea.removeFromTop(28);
     OpenGLWindowButton.setBounds(bottomRow.removeFromLeft(180));
+
+    bottomRow.removeFromLeft(24);
+    lowCutLabel.setBounds(bottomRow.removeFromLeft(60));
+    lowCutSlider.setBounds(bottomRow.removeFromLeft(260));
+    bottomRow.removeFromLeft(16);
+    highCutLabel.setBounds(bottomRow.removeFromLeft(60));
+    highCutSlider.setBounds(bottomRow.removeFromLeft(260));
 }
 
 void SquareAudioVisualizerAudioProcessorEditor::loadTextureButtonClicked()

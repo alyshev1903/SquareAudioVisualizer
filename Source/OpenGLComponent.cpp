@@ -103,6 +103,13 @@ void OpenGLComponent::pullParameters()
     if (cubeRenderer != nullptr)      cubeRenderer->setColorSeed(colorSeed);
     if (waterfallRenderer != nullptr) waterfallRenderer->setColorSeed(colorSeed);
 
+    int lfoTarget = (int)apvts.getRawParameterValue(Parameters::nameLfoTarget)->load();
+    renderer2D->setLfoTarget(lfoTarget);
+    if (cubeRenderer != nullptr)
+        cubeRenderer->setLfoTarget(lfoTarget);
+    if (waterfallRenderer != nullptr)
+        waterfallRenderer->setLfoTarget(lfoTarget);
+
     juce::String newTexturePath = sharedAudioData.consumeTexturePathIfChanged(lastSeenTextureVersion);
     if (newTexturePath.isNotEmpty())
     {

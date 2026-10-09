@@ -55,13 +55,16 @@ void CubeRenderer::updateFromAudio()
 
     std::vector<float> bands = FFTProcessor::computeBands(spectrum.data(), sampleRate, numBands, minFreqHz, maxFreqHz);
 
-    float zcrValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::cubePointSizeAgentIndex));
+    float zcrValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::modulationSource(lfoTarget, Parameters::lfoTargetCubePointSize, Parameters::cubePointSizeAgentIndex)));
     float currentPointSize = pointSize * (1.0f + zcrValue * 1.5f);
 
-    vertices = cube->buildVertexData(bands, displacementScale, currentPointSize, colorSeed);
+    float lfoValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::lfoAgentIndex));
+    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f);
+
+    vertices = cube->buildVertexData(bands, displacementScale, currentPointSize, hue);
     vertexBuffer->SetData(vertices.data(), (unsigned int)(vertices.size() * sizeof(GridVertex)));
 
-    float pitchValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::cubeRotationAgentIndex));
+    float pitchValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::modulationSource(lfoTarget, Parameters::lfoTargetCubeRotation, Parameters::cubeRotationAgentIndex)));
     rotationAngle += (baseRotationSpeed + pitchValue * 0.05f);
     rotationAngle = std::fmod(rotationAngle, 2.0f * juce::MathConstants<float>::pi);
 }
@@ -78,7 +81,7 @@ void CubeRenderer::render(int currentWidth, int currentHeight)
     camera->Matrix(45.0f, 0.1f, 2000.0f, *shader, currentWidth, currentHeight);
     shader->SetUniform1i("u_UseTexture", 0);
 
-    float envelopeValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::cubeBreatheAgentIndex));
+    float envelopeValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::modulationSource(lfoTarget, Parameters::lfoTargetCubeBreathe, Parameters::cubeBreatheAgentIndex)));
     float scale = 1.0f + envelopeValue * 0.3f;
 
     glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);

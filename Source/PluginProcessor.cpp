@@ -45,6 +45,27 @@ SquareAudioVisualizerAudioProcessor::SquareAudioVisualizerAudioProcessor()
     cubeRotationAgent.setAgentType(AgentType::AUDIO);
     cubeRotationAgent.setSourceType(SourceType::FLUID);
     cubeRotationAgent.setActive(true);
+
+    auto& waterfallDisplacementAgent = squareVisual.getAgent(Parameters::waterfallDisplacementAgentIndex);
+    waterfallDisplacementAgent.setFeature(FeatureType::ENVELOPE);
+    waterfallDisplacementAgent.setAgentType(AgentType::AUDIO);
+    waterfallDisplacementAgent.setSourceType(SourceType::FLUID);
+    waterfallDisplacementAgent.setActive(true);
+
+    auto& waterfallPointSizeAgent = squareVisual.getAgent(Parameters::waterfallPointSizeAgentIndex);
+    waterfallPointSizeAgent.setFeature(FeatureType::ZCR);
+    waterfallPointSizeAgent.setAgentType(AgentType::AUDIO);
+    waterfallPointSizeAgent.setSourceType(SourceType::FLUID);
+    waterfallPointSizeAgent.setActive(true);
+    waterfallPointSizeAgent.setRemapValue(4.0f);
+    waterfallPointSizeAgent.setSmoothingFactor(0.8f);
+
+    auto& lfoAgent = squareVisual.getAgent(Parameters::lfoAgentIndex);
+    lfoAgent.setAgentType(AgentType::OSC);
+    lfoAgent.setSourceType(SourceType::FLUID);
+    lfoAgent.setSmoothingFactor(1.0f);
+    lfoAgent.setActive(true);
+
 }
 
 
@@ -94,6 +115,9 @@ void SquareAudioVisualizerAudioProcessor::changeProgramName (int index, const ju
 //==============================================================================
 void SquareAudioVisualizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    monoBuffer.setSize(1, samplesPerBlock);
+    bandFilter.prepare(sampleRate, samplesPerBlock);
+
     for (auto& agent : squareVisual.getAgents())
     {
         if (agent.isActive() && agent.getAgentType() == AgentType::AUDIO)
@@ -106,18 +130,73 @@ void SquareAudioVisualizerAudioProcessor::releaseResources()
     
 }
 
-void SquareAudioVisualizerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void SquareAudioVisualizerAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
+
+    const int numSamples = buffer.getNumSamples();
+    const int numChannels = buffer.getNumChannels();
+    if (numChannels == 0 || numSamples == 0)
+        return;
+
     auto sr = getSampleRate();
 
     float inputLevelDb = *parameters.getRawParameterValue(Parameters::nameInputLevel);
     float inputGain = juce::Decibels::decibelsToGain(inputLevelDb);
 
-    squareVisual.processAudioBlock(buffer, sr, inputGain);
+    monoBuffer.setSize(1, numSamples, false, false, true);
+    monoBuffer.copyFrom(0, 0, buffer, 0, 0, numSamples);
+    for (int ch = 1; ch < numChannels; ++ch)
+        monoBuffer.addFrom(0, 0, buffer, ch, 0, numSamples);
+    if (numChannels > 1)
+        monoBuffer.applyGain(1.0f / (float)numChannels);
+
+    bandFilter.setCutoffs(parameters.getRawParameterValue(Parameters::nameFilterLowCut)->load(),
+        parameters.getRawParameterValue(Parameters::nameFilterHighCut)->load());
+    bandFilter.process(monoBuffer.getWritePointer(0), numSamples);
+
+    squareVisual.processAudioBlock(monoBuffer, sr, inputGain);
+
+    const bool  lfoSync = parameters.getRawParameterValue(Parameters::nameLfoSync)->load() > 0.5f;
+    const float lfoRate = parameters.getRawParameterValue(Parameters::nameLfoRate)->load();
+    const int   lfoShape = (int)parameters.getRawParameterValue(Parameters::nameLfoShape)->load();
+    const int   lfoDivision = juce::jlimit(0, Parameters::LfoDivisionOptions.size() - 1, (int)parameters.getRawParameterValue(Parameters::nameLfoDivision)->load());
+
+    double bpm = 120.0;
+    double ppq = 0.0;
+    bool   hostPlaying = false;
+
+    if (auto* playHead = getPlayHead())
+    {
+        if (const auto position = playHead->getPosition())
+        {
+            if (const auto hostBpm = position->getBpm())
+                bpm = *hostBpm;
+
+            if (const auto hostPpq = position->getPpqPosition())
+            {
+                ppq = *hostPpq;
+                hostPlaying = position->getIsPlaying();
+            }
+        }
+    }
+
+    auto& lfoAgent = squareVisual.getAgent(Parameters::lfoAgentIndex);
+    lfoAgent.setSourceType(lfoSync ? SourceType::SYNC : SourceType::FLUID);
+    lfoAgent.setOscillator(lfoRate, lfoShape, Parameters::lfoDivisionBeats[lfoDivision], bpm, ppq, hostPlaying);
+
+    const int   gateTarget = (int)parameters.getRawParameterValue(Parameters::nameGateTarget)->load();
+    const float gateThreshold = parameters.getRawParameterValue(Parameters::nameGateThreshold)->load();
+
+    for (int i = 1; i < Parameters::GateTargetOptions.size(); ++i)
+    {
+        auto& gatedAgent = squareVisual.getAgent(Parameters::gateTargetAgentIndex[i]);
+        gatedAgent.setSourceType(i == gateTarget ? SourceType::ON_OFF : SourceType::FLUID);
+        gatedAgent.setThreshold(gateThreshold);
+    }
 
     for (auto& agent : squareVisual.getAgents())
-        agent.processBlock(buffer, sr);
+        agent.processBlock(monoBuffer, sr);
 }
 
 

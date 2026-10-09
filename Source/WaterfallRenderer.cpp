@@ -74,15 +74,26 @@ void WaterfallRenderer::updateFromAudio()
     history.pop_back();
     history.insert(history.begin(), currentBands);
 
+    float displacementValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(
+        Parameters::modulationSource(lfoTarget, Parameters::lfoTargetWaterfallDisplacement, Parameters::waterfallDisplacementAgentIndex)));
+    float effectiveDisplacement = displacementScale * (0.3f + 0.7f * displacementValue);
+
+    float pointSizeValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(
+        Parameters::modulationSource(lfoTarget, Parameters::lfoTargetWaterfallPointSize, Parameters::waterfallPointSizeAgentIndex)));
+    float currentPointSize = pointSize * (1.0f + pointSizeValue * 1.5f);
+
+    float lfoValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::lfoAgentIndex));
+    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f);
+
     for (int row = 0; row < n; ++row)
     {
         for (int col = 0; col < n; ++col)
         {
             float value = history[(size_t)row][(size_t)col];
             GridVertex& v = vertices[(size_t)(row * n + col)];
-            v.y = value * displacementScale;
-            ColorUtils::heatColor(value, v.r, v.g, v.b, colorSeed);
-            v.pointSize = pointSize;
+            v.y = value * effectiveDisplacement;
+            ColorUtils::heatColor(value, v.r, v.g, v.b, hue);
+            v.pointSize = currentPointSize;
         }
     }
 

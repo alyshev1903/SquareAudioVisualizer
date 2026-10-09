@@ -27,6 +27,7 @@ public:
     void setPointSize(float newPointSize);
     void setDisplacementScale(float newScale);
 	void setColorSeed(float seed) { colorSeed = seed; }
+    void setLfoTarget(int target) { lfoTarget = target; }
 
     Camera* getCamera() { return camera.get(); }
 
@@ -51,6 +52,8 @@ private:
     float minFreqHz = Parameters::minFreqAudible;
     float maxFreqHz = Parameters::maxFreqAudible;
 	float colorSeed = 0.0f;
+
+    int lfoTarget = Parameters::lfoTargetOff;
 
     glm::vec3 translation = glm::vec3(0.0f);
 

@@ -39,11 +39,14 @@ public:
     void setZcrEffectEnabled(bool enabled) { zcrEffectEnabled = enabled;}
     void setPitchEffectEnabled(bool enabled) { pitchEffectEnabled = enabled;}
     void setColorSeed(float seed) {colorSeed = seed; }
+    void setLfoTarget(int target) { lfoTarget = target; }
 
 private:
     void rebuildGrid();
     void updateFromAudio();
-    void highlightPitchColumn();
+    int  columnForFrequency(float hz) const;
+    void highlightColumn(int column, float brightness, float basePointSize, float sizeBoost);
+    void highlightPitchColumns(float basePointSize);
 
     SquareVisual& visual;
     SharedAudioData& sharedAudioData;
@@ -68,6 +71,7 @@ private:
     bool pitchEffectEnabled = false;
     glm::vec3 translation = glm::vec3(0.0f);
 	float colorSeed = 0.0f;
+    int lfoTarget = Parameters::lfoTargetOff;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SquareGridRenderer)
 };
