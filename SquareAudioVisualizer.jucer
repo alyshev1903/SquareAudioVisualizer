@@ -778,6 +778,8 @@
       <GROUP id="{17CF3DF9-5E42-B733-838F-A7E49F3B9D53}" name="DSP">
         <FILE id="DN0uUo" name="BandFilter.cpp" compile="1" resource="0" file="Source/BandFilter.cpp"/>
         <FILE id="DpaBMs" name="BandFilter.h" compile="0" resource="0" file="Source/BandFilter.h"/>
+        <FILE id="bqFO0j" name="Brightness.cpp" compile="1" resource="0" file="Source/Brightness.cpp"/>
+        <FILE id="hQwGUb" name="Brightness.h" compile="0" resource="0" file="Source/Brightness.h"/>
         <FILE id="OCqpkS" name="Envelope.cpp" compile="1" resource="0" file="Source/Envelope.cpp"/>
         <FILE id="hG7yNa" name="Envelope.h" compile="0" resource="0" file="Source/Envelope.h"/>
         <FILE id="gyMv1e" name="FeatureCreator.h" compile="0" resource="0"
@@ -806,6 +808,9 @@
               file="Source/SharedAudioData.h"/>
       </GROUP>
       <GROUP id="{DECFF060-DE81-8005-EB37-0DD5BD449B39}" name="GUI">
+        <FILE id="y1tHra" name="FilterDisplay.cpp" compile="1" resource="0"
+              file="Source/FilterDisplay.cpp"/>
+        <FILE id="u3pmop" name="FilterDisplay.h" compile="0" resource="0" file="Source/FilterDisplay.h"/>
         <FILE id="L3xPAs" name="MyTheme.h" compile="0" resource="0" file="Source/MyTheme.h"/>
         <FILE id="qik4ZD" name="PluginEditor.cpp" compile="1" resource="0"
               file="Source/PluginEditor.cpp"/>

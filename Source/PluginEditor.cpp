@@ -3,14 +3,15 @@
 
 SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEditor(SquareAudioVisualizerAudioProcessor& p, AudioProcessorValueTreeState& vts, SquareVisual& sv)
     : audioProcessor(p), valueTreeState(vts), squareVisual(sv),
-    m_GLComponent(sv, p.getSharedAudioData(), vts)
+    m_GLComponent(sv, p.getSharedAudioData(), vts),
+    filterDisplay(vts, p.getSharedAudioData())
 {
     setLookAndFeel(&Theme);
 
     auto setupKnob = [this](juce::Slider& knob, juce::Label& label, const juce::String& text)
     {
         knob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-        knob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 60, 20);
+        knob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 70, 20);
         knob.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
         knob.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::transparentBlack);
         addAndMakeVisible(knob);
@@ -37,16 +38,27 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
     setupKnob(waterfallDisplacementSlider, waterfallDisplacementLabel, "Displacement");
 
     setupKnob(colorSeedSlider, colorSeedLabel, "Color");
-    setupKnob(inputLevelSlider, inputLevelLabel, "Input Level");
+    setupKnob(brightnessSlider, brightnessLabel, "Brightness");
 
-    setupKnob(lfoRateSlider, lfoRateLabel, "LFO Rate");
+    setupKnob(echoAmountSlider, echoAmountLabel, "Echo");
+    setupKnob(echoDelaySlider, echoDelayLabel, "Echo delay");
+    echoDelaySlider.setTextValueSuffix(" ms");
+    setupKnob(sparksSlider, sparksLabel, "Sparks");
+
+    setupKnob(inputLevelSlider, inputLevelLabel, "Input Level");
+    setupKnob(lowCutSlider, lowCutLabel, "Low cut");
+    setupKnob(highCutSlider, highCutLabel, "High cut");
+    lowCutSlider.setTextValueSuffix(" Hz");
+    highCutSlider.setTextValueSuffix(" Hz");
+
+    setupKnob(lfoRateSlider, lfoRateLabel, "Rate");
     lfoRateSlider.setTextValueSuffix(" Hz");
 
-    setupKnob(gateThresholdSlider, gateThresholdLabel, "Gate Threshold");
+    setupKnob(gateThresholdSlider, gateThresholdLabel, "Threshold");
 
     lfoTargetLabel.setText("LFO target", juce::dontSendNotification);
     lfoTargetLabel.setFont(juce::Font(11.0f));
-    lfoTargetLabel.setJustificationType(juce::Justification::centred);
+    lfoTargetLabel.setJustificationType(juce::Justification::centredLeft);
     addAndMakeVisible(lfoTargetLabel);
 
     lfoTargetBox.addItemList(Parameters::LfoTargetOptions, 1);
@@ -59,30 +71,11 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
 
     gateTargetLabel.setText("Gate target", juce::dontSendNotification);
     gateTargetLabel.setFont(juce::Font(11.0f));
-    gateTargetLabel.setJustificationType(juce::Justification::centred);
+    gateTargetLabel.setJustificationType(juce::Justification::centredLeft);
     addAndMakeVisible(gateTargetLabel);
 
     gateTargetBox.addItemList(Parameters::GateTargetOptions, 1);
     addAndMakeVisible(gateTargetBox);
-
-    for (auto* s : { &lowCutSlider, &highCutSlider })
-    {
-        s->setSliderStyle(juce::Slider::LinearHorizontal);
-        s->setTextBoxStyle(juce::Slider::TextBoxRight, false, 70, 20);
-        s->setTextValueSuffix(" Hz");
-        s->setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-        s->setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::transparentBlack);
-        addAndMakeVisible(*s);
-    }
-
-    lowCutLabel.setText("Low cut", juce::dontSendNotification);
-    highCutLabel.setText("High cut", juce::dontSendNotification);
-    for (auto* l : { &lowCutLabel, &highCutLabel })
-    {
-        l->setFont(juce::Font(11.0f));
-        l->setJustificationType(juce::Justification::centredRight);
-        addAndMakeVisible(*l);
-    }
 
     pointOrTextureBox.addItemList(Parameters::PointOrTextureOptions, 1);
     addAndMakeVisible(pointOrTextureBox);
@@ -107,6 +100,8 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
             audioProcessor.setWindowOpened(true);
         }
     };
+
+    addAndMakeVisible(filterDisplay);
 
     zcrToggleAttachment = std::make_unique<ButtonAttachment>(valueTreeState, Parameters::nameZcrEnabled, zcrToggle);
     pitchToggleAttachment = std::make_unique<ButtonAttachment>(valueTreeState, Parameters::namePitchEnabled, pitchToggle);
@@ -143,11 +138,19 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
     lowCutAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameFilterLowCut, lowCutSlider);
     highCutAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameFilterHighCut, highCutSlider);
 
-    Theme.setAccentHue((float)colorSeedSlider.getValue());
+    brightnessAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameBrightness, brightnessSlider);
+
+    echoAmountAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameEchoAmount, echoAmountSlider);
+    echoDelayAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameEchoDelay, echoDelaySlider);
+    sparksAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameSparks, sparksSlider);
+
+    Theme.setAccentHue((float)colorSeedSlider.getValue() * 0.01f);
+    filterDisplay.setAccent(Theme.getAccent());
 
     colorSeedSlider.onValueChange = [this]
     {
-        Theme.setAccentHue((float)colorSeedSlider.getValue());
+        Theme.setAccentHue((float)colorSeedSlider.getValue() * 0.01f);
+        filterDisplay.setAccent(Theme.getAccent());
         repaint();
     };
 
@@ -159,17 +162,40 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
     updateControlVisibility();
 
     addAndMakeVisible(m_GLComponent);
-    setSize(960, 760);
+    setSize(960, 920);
 }
 
 SquareAudioVisualizerAudioProcessorEditor::~SquareAudioVisualizerAudioProcessorEditor()
 {
-	setLookAndFeel(nullptr);
+    setLookAndFeel(nullptr);
 }
 
 void SquareAudioVisualizerAudioProcessorEditor::paint(juce::Graphics& g)
 {
     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+
+    drawGroup(g, visualGroupArea, visualTitle);
+    drawGroup(g, lfoGroupArea, "LFO");
+    drawGroup(g, gateGroupArea, "GATE");
+    drawGroup(g, audioGroupArea, "AUDIO - FILTER");
+}
+
+void SquareAudioVisualizerAudioProcessorEditor::drawGroup(juce::Graphics& g, juce::Rectangle<int> area, const juce::String& title)
+{
+    if (area.isEmpty())
+        return;
+
+    auto frame = area.toFloat();
+
+    g.setColour(juce::Colour(0xfff6f6f6));
+    g.fillRoundedRectangle(frame, 8.0f);
+
+    g.setColour(juce::Colour(0xffdcdcdc));
+    g.drawRoundedRectangle(frame.reduced(0.5f), 8.0f, 1.0f);
+
+    g.setColour(Theme.getAccent());
+    g.setFont(juce::Font(11.0f).boldened());
+    g.drawText(title, area.getX() + 12, area.getY() + 4, area.getWidth() - 24, 16, juce::Justification::centredLeft);
 }
 
 void SquareAudioVisualizerAudioProcessorEditor::updateControlVisibility()
@@ -185,7 +211,7 @@ void SquareAudioVisualizerAudioProcessorEditor::updateControlVisibility()
 
     for (auto* c : { (juce::Component*)&subdivisionsSlider, (juce::Component*)&sizeSlider, (juce::Component*)&pointSizeSlider,
         (juce::Component*)&pointOrTextureBox, (juce::Component*)&loadTextureButton,(juce::Component*)&zcrToggle, (juce::Component*)&pitchToggle,
-        (juce::Component*)&subdivisionsLabel, (juce::Component*)&sizeLabel, (juce::Component*)&pointSizeLabel })
+        (juce::Component*)&subdivisionsLabel, (juce::Component*)&sizeLabel, (juce::Component*)&pointSizeLabel, (juce::Component*)&sparksSlider, (juce::Component*)&sparksLabel })
         c->setVisible(show2D);
 
     for (auto* c : { (juce::Component*)&cubeSubdivisionsSlider, (juce::Component*)&cubeSizeSlider, (juce::Component*)&cubePointSizeSlider,
@@ -199,113 +225,139 @@ void SquareAudioVisualizerAudioProcessorEditor::updateControlVisibility()
         (juce::Component*)&waterfallDisplacementLabel })
         c->setVisible(showWaterfall);
 
+    for (auto* c : { (juce::Component*)&echoAmountSlider, (juce::Component*)&echoDelaySlider,
+    (juce::Component*)&echoAmountLabel, (juce::Component*)&echoDelayLabel })
+        c->setVisible(dim == 1);
+
     const bool lfoSync = lfoSyncToggle.getToggleState();
     lfoRateSlider.setVisible(!lfoSync);
     lfoRateLabel.setVisible(!lfoSync);
     lfoDivisionBox.setVisible(lfoSync);
+
     resized();
+    repaint();
 }
 
 void SquareAudioVisualizerAudioProcessorEditor::resized()
 {
     auto bounds = getLocalBounds();
-    auto controlsArea = bounds.removeFromBottom(268).reduced(8);
+    auto controlsArea = bounds.removeFromBottom(440).reduced(8);
     m_GLComponent.setBounds(bounds);
 
-    const int knobSize = 52;
-    const int knobGap = 30;
-    const int bigKnobSize = 84;
-    const int labelHeight = 16;
+    const int slotWidth = 80;
+    const int knobWidth = 72;
+    const int knobHeight = 78;
+    const int labelHeight = 14;
+    const int titleHeight = 22;
+    const int comboHeight = 28;
 
-    auto layoutKnobRowCentered = [&](juce::Rectangle<int> area, std::initializer_list<std::pair<juce::Slider*, juce::Label*>> knobs)
+    auto placeKnob = [&](int centreX, int top, juce::Slider& knob, juce::Label& label, int width, int height)
     {
-        int count = (int)knobs.size();
-        if (count == 0) return;
-        int totalWidth = count * knobSize + (count - 1) * knobGap;
-        int x = area.getCentreX() - totalWidth / 2;
+        label.setBounds(centreX - slotWidth / 2, top, slotWidth, labelHeight);
+        knob.setBounds(centreX - width / 2, top + labelHeight, width, height);
+    };
+
+    auto layoutKnobRow = [&](juce::Rectangle<int> group, std::initializer_list<std::pair<juce::Slider*, juce::Label*>> knobs)
+    {
+        const int count = (int)knobs.size();
+        int centreX = group.getCentreX() - (count * slotWidth) / 2 + slotWidth / 2;
+        const int top = group.getY() + titleHeight;
         for (auto& [knob, label] : knobs)
         {
-            knob->setBounds(x, area.getY(), knobSize, knobSize);
-            label->setBounds(x - (knobGap / 2), area.getY() - labelHeight - 2, knobSize + knobGap, labelHeight);
-            x += knobSize + knobGap;
+            placeKnob(centreX, top, *knob, *label, knobWidth, knobHeight);
+            centreX += slotWidth;
         }
     };
 
-    auto modeRow = controlsArea.removeFromTop(28);
+    auto modeRow = controlsArea.removeFromTop(comboHeight);
     dimensionModeBox.setBounds(modeRow.removeFromLeft(130));
     modeRow.removeFromLeft(8);
     mode3DBox.setBounds(modeRow.removeFromLeft(150));
 
-    pitchToggle.setBounds(modeRow.removeFromRight(90));
+    OpenGLWindowButton.setBounds(modeRow.removeFromRight(170));
+    modeRow.removeFromRight(16);
+    pitchToggle.setBounds(modeRow.removeFromRight(80));
     modeRow.removeFromRight(8);
-    zcrToggle.setBounds(modeRow.removeFromRight(90));
-    modeRow.removeFromRight(20);
-    loadTextureButton.setBounds(modeRow.removeFromRight(150));
-    modeRow.removeFromRight(10);
-    pointOrTextureBox.setBounds(modeRow.removeFromRight(150));
+    zcrToggle.setBounds(modeRow.removeFromRight(80));
+    modeRow.removeFromRight(16);
+    loadTextureButton.setBounds(modeRow.removeFromRight(130));
+    modeRow.removeFromRight(8);
+    pointOrTextureBox.setBounds(modeRow.removeFromRight(110));
 
-    controlsArea.removeFromTop(labelHeight + 6);
-
-    auto knobRow = controlsArea.removeFromTop(knobSize);
+    controlsArea.removeFromTop(8);
+    visualGroupArea = controlsArea.removeFromTop(120);
 
     int dim = (int)*valueTreeState.getRawParameterValue(Parameters::nameDimensionMode);
     int m3 = (int)*valueTreeState.getRawParameterValue(Parameters::nameMode3D);
 
     if (dim == 0)
-        layoutKnobRowCentered(knobRow, { {&subdivisionsSlider,&subdivisionsLabel}, {&sizeSlider,&sizeLabel},
-            {&pointSizeSlider,&pointSizeLabel}, {&colorSeedSlider,&colorSeedLabel} });
+    {
+        visualTitle = "VISUAL - 2D";
+        layoutKnobRow(visualGroupArea, { {&subdivisionsSlider,&subdivisionsLabel}, {&sizeSlider,&sizeLabel},
+            {&pointSizeSlider,&pointSizeLabel}, {&colorSeedSlider,&colorSeedLabel}, {&brightnessSlider,&brightnessLabel}, {&sparksSlider,&sparksLabel} });
+    }
     else if (m3 == 1)
-        layoutKnobRowCentered(knobRow, { {&cubeSubdivisionsSlider,&cubeSubdivisionsLabel}, {&cubeSizeSlider,&cubeSizeLabel},
+    {
+        visualTitle = "VISUAL - CUBE";
+        layoutKnobRow(visualGroupArea, { {&cubeSubdivisionsSlider,&cubeSubdivisionsLabel}, {&cubeSizeSlider,&cubeSizeLabel},
             {&cubePointSizeSlider,&cubePointSizeLabel}, {&cubeDisplacementSlider,&cubeDisplacementLabel},
-            {&cubeRotationSpeedSlider,&cubeRotationSpeedLabel},{&colorSeedSlider,&colorSeedLabel} });
+            {&cubeRotationSpeedSlider,&cubeRotationSpeedLabel}, {&colorSeedSlider,&colorSeedLabel}, {&brightnessSlider,&brightnessLabel},
+            {&echoAmountSlider,&echoAmountLabel}, {&echoDelaySlider,&echoDelayLabel} });
+    }
     else
-        layoutKnobRowCentered(knobRow, { {&waterfallSubdivisionsSlider,&waterfallSubdivisionsLabel}, {&waterfallSizeSlider,&waterfallSizeLabel},
+    {
+        visualTitle = "VISUAL - WATERFALL";
+        layoutKnobRow(visualGroupArea, { {&waterfallSubdivisionsSlider,&waterfallSubdivisionsLabel}, {&waterfallSizeSlider,&waterfallSizeLabel},
             {&waterfallPointSizeSlider,&waterfallPointSizeLabel}, {&waterfallDisplacementSlider,&waterfallDisplacementLabel},
-            {&colorSeedSlider,&colorSeedLabel}});
+            {&colorSeedSlider,&colorSeedLabel}, {&brightnessSlider,&brightnessLabel}, {&echoAmountSlider,&echoAmountLabel}, {&echoDelaySlider,&echoDelayLabel} });
+    }
 
-    controlsArea.removeFromTop(20);
+    controlsArea.removeFromTop(8);
+    auto rowC = controlsArea.removeFromTop(120);
+    lfoGroupArea = rowC.removeFromLeft(520);
+    rowC.removeFromLeft(8);
+    gateGroupArea = rowC;
 
-    auto bigKnobRow = controlsArea.removeFromTop(bigKnobSize);
-    inputLevelSlider.setBounds(bigKnobRow.withSizeKeepingCentre(bigKnobSize, bigKnobSize));
-    inputLevelLabel.setBounds(bigKnobRow.withSizeKeepingCentre(bigKnobSize + 40, labelHeight).translated(0, -bigKnobSize / 2 - labelHeight));
+    const int lfoTop = lfoGroupArea.getY() + titleHeight;
+    const int lfoLeft = lfoGroupArea.getX() + 12;
 
-    auto lfoArea = bigKnobRow.removeFromRight(400);
+    placeKnob(lfoLeft + slotWidth / 2, lfoTop, lfoRateSlider, lfoRateLabel, knobWidth, knobHeight);
+    lfoDivisionBox.setBounds(lfoLeft, lfoTop + labelHeight + (knobHeight - comboHeight) / 2, slotWidth, comboHeight);
 
-    auto rateSlot = lfoArea.removeFromLeft(84);
-    lfoRateLabel.setBounds(rateSlot.removeFromTop(labelHeight));
-    lfoRateSlider.setBounds(rateSlot.withSizeKeepingCentre(knobSize, knobSize));
-    lfoDivisionBox.setBounds(rateSlot.withSizeKeepingCentre(rateSlot.getWidth(), 28));
+    const int lfoRightX = lfoLeft + slotWidth + 16;
+    juce::Rectangle<int> lfoRight(lfoRightX, lfoTop, lfoGroupArea.getRight() - 12 - lfoRightX, 80);
+    lfoTargetLabel.setBounds(lfoRight.removeFromTop(labelHeight));
+    lfoTargetBox.setBounds(lfoRight.removeFromTop(comboHeight));
+    lfoRight.removeFromTop(8);
+    auto lfoRow = lfoRight.removeFromTop(comboHeight);
+    lfoShapeBox.setBounds(lfoRow.removeFromLeft(160));
+    lfoRow.removeFromLeft(12);
+    lfoSyncToggle.setBounds(lfoRow.removeFromLeft(100));
 
-    lfoArea.removeFromLeft(16);
-    lfoTargetLabel.setBounds(lfoArea.removeFromTop(labelHeight));
-    lfoTargetBox.setBounds(lfoArea.removeFromTop(28));
-    lfoArea.removeFromTop(8);
-    auto lfoRow = lfoArea.removeFromTop(28);
-    lfoShapeBox.setBounds(lfoRow.removeFromLeft(140));
-    lfoRow.removeFromLeft(10);
-    lfoSyncToggle.setBounds(lfoRow.removeFromLeft(90));
+    const int gateTop = gateGroupArea.getY() + titleHeight;
+    placeKnob(gateGroupArea.getRight() - 12 - slotWidth / 2, gateTop, gateThresholdSlider, gateThresholdLabel, knobWidth, knobHeight);
 
-    auto gateArea = bigKnobRow.removeFromLeft(400);
+    juce::Rectangle<int> gateLeft(gateGroupArea.getX() + 12, gateTop, gateGroupArea.getWidth() - 24 - slotWidth - 16, 80);
+    gateTargetLabel.setBounds(gateLeft.removeFromTop(labelHeight));
+    gateTargetBox.setBounds(gateLeft.removeFromTop(comboHeight));
 
-    auto thresholdSlot = gateArea.removeFromRight(84);
-    gateThresholdLabel.setBounds(thresholdSlot.removeFromTop(labelHeight));
-    gateThresholdSlider.setBounds(thresholdSlot.withSizeKeepingCentre(knobSize, knobSize));
+    controlsArea.removeFromTop(8);
+    audioGroupArea = controlsArea;
 
-    gateArea.removeFromRight(16);
-    gateTargetLabel.setBounds(gateArea.removeFromTop(labelHeight));
-    gateTargetBox.setBounds(gateArea.removeFromTop(28));
+    const int audioTop = audioGroupArea.getY() + titleHeight;
+    int left = audioGroupArea.getX() + 12;
+    const int right = audioGroupArea.getRight() - 12;
 
-    controlsArea.removeFromTop(14);
+    inputLevelLabel.setBounds(left, audioTop, 100, labelHeight);
+    inputLevelSlider.setBounds(left + 2, audioTop + labelHeight, 96, 92);
+    left += 100 + 8;
 
-    auto bottomRow = controlsArea.removeFromTop(28);
-    OpenGLWindowButton.setBounds(bottomRow.removeFromLeft(180));
+    placeKnob(left + slotWidth / 2, audioTop, lowCutSlider, lowCutLabel, knobWidth, knobHeight);
+    left += slotWidth + 8;
 
-    bottomRow.removeFromLeft(24);
-    lowCutLabel.setBounds(bottomRow.removeFromLeft(60));
-    lowCutSlider.setBounds(bottomRow.removeFromLeft(260));
-    bottomRow.removeFromLeft(16);
-    highCutLabel.setBounds(bottomRow.removeFromLeft(60));
-    highCutSlider.setBounds(bottomRow.removeFromLeft(260));
+    placeKnob(right - slotWidth / 2, audioTop, highCutSlider, highCutLabel, knobWidth, knobHeight);
+
+    filterDisplay.setBounds(left, audioTop, right - slotWidth - 8 - left, audioGroupArea.getBottom() - 8 - audioTop);
 }
 
 void SquareAudioVisualizerAudioProcessorEditor::loadTextureButtonClicked()
@@ -334,7 +386,7 @@ void SquareAudioVisualizerAudioProcessorEditor::openOpenGLWindow()
 WrappedPluginEditor::WrappedPluginEditor(SquareAudioVisualizerAudioProcessor& p, AudioProcessorValueTreeState& vts, SquareVisual& s)
     : AudioProcessorEditor(&p), editorComponent(p, vts, s)
 {
-    setSize(960, 760);
+    setSize(960, 920);
     addAndMakeVisible(editorComponent);
 }
 

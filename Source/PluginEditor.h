@@ -4,6 +4,7 @@
 #include "PluginProcessor.h"
 #include "OpenGLWindow.h"
 #include "OpenGLComponent.h"
+#include "FilterDisplay.h"
 #include "Parameters.h"
 #include "MyTheme.h"
 
@@ -22,11 +23,13 @@ private:
     SquareVisual& squareVisual;
 
     OpenGLComponent m_GLComponent;
+    FilterDisplay filterDisplay;
 
     void openOpenGLWindow();
     void loadTextureButtonClicked();
 
     void updateControlVisibility();
+    void drawGroup(juce::Graphics& g, juce::Rectangle<int> area, const juce::String& title);
 
     juce::Slider subdivisionsSlider, sizeSlider, pointSizeSlider, inputLevelSlider;
     juce::Label  subdivisionsLabel, sizeLabel, pointSizeLabel, inputLevelLabel;
@@ -49,16 +52,25 @@ private:
     juce::Slider lowCutSlider, highCutSlider;
     juce::Label  lowCutLabel, highCutLabel;
 
+    juce::Slider brightnessSlider;
+    juce::Label  brightnessLabel;
+
+    juce::Slider echoAmountSlider, echoDelaySlider, sparksSlider;
+    juce::Label  echoAmountLabel, echoDelayLabel, sparksLabel;
+
     juce::ComboBox pointOrTextureBox;
     juce::ComboBox dimensionModeBox;
     juce::ComboBox mode3DBox;
     juce::ComboBox lfoTargetBox, lfoShapeBox, lfoDivisionBox;
     juce::ComboBox gateTargetBox;
     juce::TextButton loadTextureButton{ "Load texture..." };
-	juce::TextButton OpenGLWindowButton{ "Open external Window" };
-    juce::ToggleButton zcrToggle{ "ZCR"};
+    juce::TextButton OpenGLWindowButton{ "Open external Window" };
+    juce::ToggleButton zcrToggle{ "Onset" };
     juce::ToggleButton pitchToggle{ "Pitch" };
     juce::ToggleButton lfoSyncToggle{ "Sync" };
+
+    juce::Rectangle<int> visualGroupArea, audioGroupArea, lfoGroupArea, gateGroupArea;
+    juce::String visualTitle;
 
     using ButtonAttachment = AudioProcessorValueTreeState::ButtonAttachment;
     using SliderAttachment = AudioProcessorValueTreeState::SliderAttachment;
@@ -81,12 +93,15 @@ private:
     std::unique_ptr<ComboBoxAttachment> gateTargetAttachment;
 
     std::unique_ptr<SliderAttachment> lowCutAttachment, highCutAttachment;
+    std::unique_ptr<SliderAttachment> brightnessAttachment;
+
+    std::unique_ptr<SliderAttachment> echoAmountAttachment, echoDelayAttachment, sparksAttachment;
 
     std::unique_ptr<OpenGLWindow> openGLWindow;
 
     std::unique_ptr<juce::FileChooser> fileChooser;
 
-	MyTheme Theme;
+    MyTheme Theme;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SquareAudioVisualizerAudioProcessorEditor)
 };

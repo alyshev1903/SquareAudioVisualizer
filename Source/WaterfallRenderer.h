@@ -28,6 +28,9 @@ public:
     void setDisplacementScale(float newScale);
 	void setColorSeed(float seed) { colorSeed = seed; }
     void setLfoTarget(int target) { lfoTarget = target; }
+    void setBrightnessAmount(float amount) { brightnessAmount = amount;}
+    void setEchoAmount(float amount) { echoAmount = amount; }
+    void setEchoDelay(float delayMs) { echoDelayMs = delayMs; }
 
     Camera* getCamera() { return camera.get(); }
 
@@ -52,8 +55,21 @@ private:
     float minFreqHz = Parameters::minFreqAudible;
     float maxFreqHz = Parameters::maxFreqAudible;
 	float colorSeed = 0.0f;
+    float brightnessAmount = 0.0f;
+
+    double lastFrameTimeMs = 0.0;
+    float  rowAccumulator = 0.0f;
 
     int lfoTarget = Parameters::lfoTargetOff;
+
+    std::unique_ptr<VertexArray>  echoVao;
+    std::unique_ptr<VertexBuffer> echoVertexBuffer;
+    std::vector<GridVertex>       echoVertices;
+
+    static constexpr float echoHueOffset = 0.45f;
+    static constexpr float echoGapFactor = 0.15f;
+    float echoAmount = 0.0f;
+    float echoDelayMs = 250.0f;
 
     glm::vec3 translation = glm::vec3(0.0f);
 

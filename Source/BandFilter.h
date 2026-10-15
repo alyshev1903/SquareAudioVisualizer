@@ -6,11 +6,22 @@
 class BandFilter
 {
 public:
+    struct Cutoffs
+    {
+        float low = 20.0f;
+        float high = 20000.0f;
+        bool  lowActive = false;
+        bool  highActive = false;
+    };
+
     BandFilter() = default;
 
     void prepare(double newSampleRate, int maxBlockSize);
     void setCutoffs(float lowCutHz, float highCutHz);
     void process(float* samples, int numSamples);
+
+    static Cutoffs resolveCutoffs(float lowCutHz, float highCutHz, double sampleRate);
+    static float   magnitudeDb(float hz, const Cutoffs& cutoffs);
 
 private:
     juce::dsp::LinkwitzRileyFilter<float> lowCutFilter;

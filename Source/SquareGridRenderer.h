@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <vector>
+#include <array>
 
 #include "VertexArray.h"
 #include "VertexBuffer.h"
@@ -40,6 +41,9 @@ public:
     void setPitchEffectEnabled(bool enabled) { pitchEffectEnabled = enabled;}
     void setColorSeed(float seed) {colorSeed = seed; }
     void setLfoTarget(int target) { lfoTarget = target; }
+    void setBrightnessAmount(float amount) { brightnessAmount = amount; }
+
+    void setWaveAmount(float amount) { waveAmount = amount; }
 
 private:
     void rebuildGrid();
@@ -71,7 +75,28 @@ private:
     bool pitchEffectEnabled = false;
     glm::vec3 translation = glm::vec3(0.0f);
 	float colorSeed = 0.0f;
+    float brightnessAmount = 0.0f;
     int lfoTarget = Parameters::lfoTargetOff;
+
+    struct Wave
+    {
+        float cx = 0.0f;
+        float cy = 0.0f;
+        float age = 0.0f;
+        float strength = 0.0f;
+        float tone = 0.0f;
+        bool  active = false;
+    };
+
+    void updateWaves(float hue, float basePointSize);
+    void spawnWave(float strength);
+
+    std::array<Wave, 8> waves;
+    juce::Random random;
+    float  waveAmount = 0.0f;
+    float  lastOnset = 0.0f;
+    double lastFrameTimeMs = 0.0;
+    double lastWaveTimeMs = 0.0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SquareGridRenderer)
 };

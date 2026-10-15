@@ -19,25 +19,32 @@ void BandFilter::prepare(double newSampleRate, int maxBlockSize)
     highCutActive = false;
 }
 
-void BandFilter::setCutoffs(float lowCutHz, float highCutHz)
+BandFilter::Cutoffs BandFilter::resolveCutoffs(float lowCutHz, float highCutHz, double sampleRate)
 {
-    const bool lowNowActive = lowCutHz > (float)Parameters::minFreqAudible + 0.5f;
-    const bool highNowActive = highCutHz < (float)Parameters::maxFreqAudible - 0.5f;
-
-    if (lowNowActive && !lowCutActive)
-        lowCutFilter.reset();
-    if (highNowActive && !highCutActive)
-        highCutFilter.reset();
-
-    lowCutActive = lowNowActive;
-    highCutActive = highNowActive;
+    Cutoffs cutoffs;
+    cutoffs.lowActive = lowCutHz > (float)Parameters::minFreqAudible + 0.5f;
+    cutoffs.highActive = highCutHz < (float)Parameters::maxFreqAudible - 0.5f;
 
     const float limit = (float)(0.45 * sampleRate);
-    const float low = juce::jmin(lowCutHz, limit);
-    const float high = juce::jmin(juce::jmax(highCutHz, low * 1.25f), limit);
+    cutoffs.low = juce::jmin(lowCutHz, limit);
+    cutoffs.high = juce::jmin(juce::jmax(highCutHz, cutoffs.low * 1.25f), limit);
+    return cutoffs;
+}
 
-    lowCutFilter.setCutoffFrequency(low);
-    highCutFilter.setCutoffFrequency(high);
+void BandFilter::setCutoffs(float lowCutHz, float highCutHz)
+{
+    const auto cutoffs = resolveCutoffs(lowCutHz, highCutHz, sampleRate);
+
+    if (cutoffs.lowActive && !lowCutActive)
+        lowCutFilter.reset();
+    if (cutoffs.highActive && !highCutActive)
+        highCutFilter.reset();
+
+    lowCutActive = cutoffs.lowActive;
+    highCutActive = cutoffs.highActive;
+
+    lowCutFilter.setCutoffFrequency(cutoffs.low);
+    highCutFilter.setCutoffFrequency(cutoffs.high);
 }
 
 void BandFilter::process(float* samples, int numSamples)
@@ -54,4 +61,25 @@ void BandFilter::process(float* samples, int numSamples)
             x = highCutFilter.processSample(0, x);
         samples[s] = x;
     }
+}
+
+float BandFilter::magnitudeDb(float hz, const Cutoffs& cutoffs)
+{
+    float magnitude = 1.0f;
+
+    if (cutoffs.lowActive)
+    {
+        const float x = hz / cutoffs.low;
+        const float x4 = x * x * x * x;
+        magnitude *= x4 / (1.0f + x4);
+    }
+
+    if (cutoffs.highActive)
+    {
+        const float x = hz / cutoffs.high;
+        const float x4 = x * x * x * x;
+        magnitude *= 1.0f / (1.0f + x4);
+    }
+
+    return 20.0f * std::log10(juce::jmax(magnitude, 1.0e-4f));
 }

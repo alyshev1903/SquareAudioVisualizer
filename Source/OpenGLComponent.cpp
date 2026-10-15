@@ -9,13 +9,23 @@ OpenGLComponent::OpenGLComponent(SquareVisual& visualToRender, SharedAudioData& 
 {
     m_GLContext.setOpenGLVersionRequired(juce::OpenGLContext::openGL3_2);
     m_GLContext.setRenderer(this);
+    m_GLContext.setComponentPaintingEnabled(false);
+    m_GLContext.setContinuousRepainting(false);
     m_GLContext.attachTo(*this);
-    m_GLContext.setContinuousRepainting(true);
+
+    startTimerHz(Parameters::renderFps);
 }
 
 OpenGLComponent::~OpenGLComponent()
 {
+    stopTimer();
     m_GLContext.detach();
+}
+
+void OpenGLComponent::timerCallback()
+{
+    if (isShowing())
+        m_GLContext.triggerRepaint();
 }
 
 void OpenGLComponent::newOpenGLContextCreated()
@@ -30,85 +40,58 @@ void OpenGLComponent::pullParameters()
     if (renderer2D == nullptr)
         return;
 
-    int   subdivisions = (int)apvts.getRawParameterValue(Parameters::nameSubdivision)->load();
-    float size = apvts.getRawParameterValue(Parameters::nameSize)->load();
-    float pointSize = apvts.getRawParameterValue(Parameters::namePointSize)->load();
-    int   pointOrTexture = (int)apvts.getRawParameterValue(Parameters::namePointOrTexture)->load();
-    bool  zcrEnabled = apvts.getRawParameterValue(Parameters::nameZcrEnabled)->load() > 0.5f;
-    bool  pitchEnabled = apvts.getRawParameterValue(Parameters::namePitchEnabled)->load() > 0.5f;
-
-    renderer2D->setZcrEffectEnabled(zcrEnabled);
-    renderer2D->setPitchEffectEnabled(pitchEnabled);
-
-    if (subdivisions != lastSubdivisions)
+    auto param = [this](const juce::String& id)
     {
-        renderer2D->setSubdivisions(subdivisions);
-        lastSubdivisions = subdivisions;
-    }
-    if (std::abs(size - lastSize) > 0.001f)
-    {
-        renderer2D->setSize(size);
-        lastSize = size;
-    }
+        return apvts.getRawParameterValue(id)->load();
+    };
 
-    renderer2D->setPointSize(pointSize);
-    renderer2D->setUseTexture(pointOrTexture == 1);
+    auto forEachRenderer = [this](auto&& apply)
+    {
+        apply(*renderer2D);
+        if (cubeRenderer != nullptr)      apply(*cubeRenderer);
+        if (waterfallRenderer != nullptr) apply(*waterfallRenderer);
+    };
+
+    renderer2D->setZcrEffectEnabled(param(Parameters::nameZcrEnabled) > 0.5f);
+    renderer2D->setPitchEffectEnabled(param(Parameters::namePitchEnabled) > 0.5f);
+    renderer2D->setUseTexture((int)param(Parameters::namePointOrTexture) == 1);
+    renderer2D->setPointSize(param(Parameters::namePointSize));
+    applyGeometry(*renderer2D, (int)param(Parameters::nameSubdivision), param(Parameters::nameSize), last2D);
+
+    const float echoAmount = param(Parameters::nameEchoAmount) * 0.01f;
+    const float echoDelay = param(Parameters::nameEchoDelay);
 
     if (cubeRenderer != nullptr)
     {
-        int   cubeSubdivisions = (int)apvts.getRawParameterValue(Parameters::nameCubeSubdivision)->load();
-        float cubeSize = apvts.getRawParameterValue(Parameters::nameCubeSize)->load();
-        float cubePointSize = apvts.getRawParameterValue(Parameters::nameCubePointSize)->load();
-        float cubeDisplacement = apvts.getRawParameterValue(Parameters::nameCubeDisplacement)->load();
-        float cubeRotationSpeed = apvts.getRawParameterValue(Parameters::nameCubeRotationSpeed)->load() * 0.001f;
-
-        if (cubeSubdivisions != lastCubeSubdivisions)
-        {
-            cubeRenderer->setSubdivisions(cubeSubdivisions);
-            lastCubeSubdivisions = cubeSubdivisions;
-        }
-        if (std::abs(cubeSize - lastCubeSize) > 0.001f)
-        {
-            cubeRenderer->setSize(cubeSize);
-            lastCubeSize = cubeSize;
-        }
-        cubeRenderer->setPointSize(cubePointSize);
-        cubeRenderer->setDisplacementScale(cubeDisplacement);
-        cubeRenderer->setRotationSpeed(cubeRotationSpeed);
+        applyGeometry(*cubeRenderer, (int)param(Parameters::nameCubeSubdivision), param(Parameters::nameCubeSize), lastCube);
+        cubeRenderer->setPointSize(param(Parameters::nameCubePointSize));
+        cubeRenderer->setDisplacementScale(param(Parameters::nameCubeDisplacement));
+        cubeRenderer->setRotationSpeed(param(Parameters::nameCubeRotationSpeed) * 0.001f);
+        cubeRenderer->setEchoAmount(echoAmount);
+        cubeRenderer->setEchoDelay(echoDelay);
     }
 
     if (waterfallRenderer != nullptr)
     {
-        int   waterfallSubdivisions = (int)apvts.getRawParameterValue(Parameters::nameWaterfallSubdivision)->load();
-        float waterfallSize = apvts.getRawParameterValue(Parameters::nameWaterfallSize)->load();
-        float waterfallPointSize = apvts.getRawParameterValue(Parameters::nameWaterfallPointSize)->load();
-        float waterfallDisplacement = apvts.getRawParameterValue(Parameters::nameWaterfallDisplacement)->load();
-
-        if (waterfallSubdivisions != lastWaterfallSubdivisions)
-        {
-            waterfallRenderer->setSubdivisions(waterfallSubdivisions);
-            lastWaterfallSubdivisions = waterfallSubdivisions;
-        }
-        if (std::abs(waterfallSize - lastWaterfallSize) > 0.001f)
-        {
-            waterfallRenderer->setSize(waterfallSize);
-            lastWaterfallSize = waterfallSize;
-        }
-        waterfallRenderer->setPointSize(waterfallPointSize);
-        waterfallRenderer->setDisplacementScale(waterfallDisplacement);
+        applyGeometry(*waterfallRenderer, (int)param(Parameters::nameWaterfallSubdivision), param(Parameters::nameWaterfallSize), lastWaterfall);
+        waterfallRenderer->setPointSize(param(Parameters::nameWaterfallPointSize));
+        waterfallRenderer->setDisplacementScale(param(Parameters::nameWaterfallDisplacement));
+        waterfallRenderer->setEchoAmount(echoAmount);
+        waterfallRenderer->setEchoDelay(echoDelay);
     }
 
-    float colorSeed = apvts.getRawParameterValue(Parameters::nameColorSeed)->load() * 0.01f;
-    renderer2D->setColorSeed(colorSeed);
-    if (cubeRenderer != nullptr)      cubeRenderer->setColorSeed(colorSeed);
-    if (waterfallRenderer != nullptr) waterfallRenderer->setColorSeed(colorSeed);
+    const float colorSeed = param(Parameters::nameColorSeed) * 0.01f;
+    const float brightnessAmount = param(Parameters::nameBrightness) * 0.01f;
+    const int   lfoTarget = (int)param(Parameters::nameLfoTarget);
 
-    int lfoTarget = (int)apvts.getRawParameterValue(Parameters::nameLfoTarget)->load();
-    renderer2D->setLfoTarget(lfoTarget);
-    if (cubeRenderer != nullptr)
-        cubeRenderer->setLfoTarget(lfoTarget);
-    if (waterfallRenderer != nullptr)
-        waterfallRenderer->setLfoTarget(lfoTarget);
+    forEachRenderer([&](auto& renderer)
+    {
+        renderer.setColorSeed(colorSeed);
+        renderer.setBrightnessAmount(brightnessAmount);
+        renderer.setLfoTarget(lfoTarget);
+    });
+
+    renderer2D->setWaveAmount(param(Parameters::nameSparks) * 0.01f);
 
     juce::String newTexturePath = sharedAudioData.consumeTexturePathIfChanged(lastSeenTextureVersion);
     if (newTexturePath.isNotEmpty())

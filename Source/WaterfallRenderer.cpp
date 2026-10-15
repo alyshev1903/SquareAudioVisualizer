@@ -58,6 +58,14 @@ void WaterfallRenderer::rebuildGeometry()
     VertexBufferLayout layout;
     Square::buildLayout(layout);
     vao->AddBuffer(*vertexBuffer, layout);
+
+    echoVertices = vertices;
+    echoVao = std::make_unique<VertexArray>();
+    echoVertexBuffer = std::make_unique<VertexBuffer>(echoVertices.data(), (unsigned int)(echoVertices.size() * sizeof(GridVertex)), GL_DYNAMIC_DRAW);
+
+    VertexBufferLayout echoLayout;
+    Square::buildLayout(echoLayout);
+    echoVao->AddBuffer(*echoVertexBuffer, echoLayout);
 }
 
 void WaterfallRenderer::updateFromAudio()
@@ -71,8 +79,19 @@ void WaterfallRenderer::updateFromAudio()
     const int n = subdivisions + 1;
     std::vector<float> currentBands = FFTProcessor::computeBands(spectrum.data(), sampleRate, n, minFreqHz, maxFreqHz);
 
-    history.pop_back();
-    history.insert(history.begin(), currentBands);
+    const double nowMs = juce::Time::getMillisecondCounterHiRes();
+    const float dtSeconds = lastFrameTimeMs > 0.0
+        ? (float)juce::jlimit(0.0, 100.0, nowMs - lastFrameTimeMs) * 0.001f
+        : 0.0f;
+    lastFrameTimeMs = nowMs;
+
+    rowAccumulator += dtSeconds * Parameters::waterfallRowsPerSecond;
+    if (rowAccumulator >= 1.0f)
+    {
+        rowAccumulator = std::fmod(rowAccumulator, 1.0f);
+        history.pop_back();
+        history.insert(history.begin(), currentBands);
+    }
 
     float displacementValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(
         Parameters::modulationSource(lfoTarget, Parameters::lfoTargetWaterfallDisplacement, Parameters::waterfallDisplacementAgentIndex)));
@@ -83,7 +102,8 @@ void WaterfallRenderer::updateFromAudio()
     float currentPointSize = pointSize * (1.0f + pointSizeValue * 1.5f);
 
     float lfoValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::lfoAgentIndex));
-    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f);
+    float brightnessValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::brightnessAgentIndex));
+    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f) + brightnessAmount * brightnessValue;
 
     for (int row = 0; row < n; ++row)
     {
@@ -98,12 +118,36 @@ void WaterfallRenderer::updateFromAudio()
     }
 
     vertexBuffer->SetData(vertices.data(), (unsigned int)(vertices.size() * sizeof(GridVertex)));
+
+    if (echoAmount > 0.001f)
+    {
+        const int shift = juce::jlimit(0, n - 1, (int)std::round(echoDelayMs * 0.001f * Parameters::waterfallRowsPerSecond));
+
+        for (int row = 0; row < n; ++row)
+        {
+            const int delayedRow = juce::jmin(row + shift, n - 1);
+            for (int col = 0; col < n; ++col)
+            {
+                const float value = history[(size_t)delayedRow][(size_t)col];
+                GridVertex& e = echoVertices[(size_t)(row * n + col)];
+
+                e = vertices[(size_t)(row * n + col)];
+                e.y = -value * effectiveDisplacement;
+                ColorUtils::heatColor(value, e.r, e.g, e.b, hue + echoHueOffset);
+                e.pointSize = currentPointSize * 0.8f;
+            }
+        }
+
+        echoVertexBuffer->SetData(echoVertices.data(), (unsigned int)(echoVertices.size() * sizeof(GridVertex)));
+    }
 }
 
 void WaterfallRenderer::render(int currentWidth, int currentHeight)
 {
     updateFromAudio();
 
+    GLCall(glEnable(GL_DEPTH_TEST));
+    GLCall(glDepthMask(GL_TRUE));
     GLCall(glClearColor(0.05f, 0.05f, 0.05f, 1.0f));
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     GLCall(glViewport(0, 0, currentWidth, currentHeight));
@@ -113,10 +157,17 @@ void WaterfallRenderer::render(int currentWidth, int currentHeight)
     shader->SetUniform1i("u_UseTexture", 0);
 
     glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
-    shader->SetUniformMat4f("u_Model", model);
 
-    vao->Bind();
-    GLCall(glDrawArrays(GL_POINTS, 0, (GLsizei)vertices.size()));
+    if (echoAmount > 0.001f)
+    {
+        const float gap = juce::jmin(size * echoGapFactor, 5.0f);
+        glm::mat4 echoModel = glm::translate(glm::mat4(1.0f), translation + glm::vec3(0.0f, -gap, 0.0f));
+        shader->SetUniformMat4f("u_Model", echoModel);
+        DrawPoints(*shader, *echoVao, (int)echoVertices.size(), true, echoAmount * 0.3f); 
+    }
+
+    shader->SetUniformMat4f("u_Model", model);
+    DrawPoints(*shader, *vao, (int)vertices.size(), true);
 }
 
 void WaterfallRenderer::setSubdivisions(int newSubdivisions) { subdivisions = juce::jmax(1, newSubdivisions); rebuildGeometry();}

@@ -4,6 +4,7 @@
 #include <juce_opengl/juce_opengl.h>
 #include <memory>
 #include <vector>
+#include <array>
 
 #include "VertexArray.h"
 #include "VertexBuffer.h"
@@ -29,6 +30,9 @@ public:
     void setColorSeed(float seed) { colorSeed = seed;}
     void setRotationSpeed(float speed) { baseRotationSpeed = speed; }
     void setLfoTarget(int target) { lfoTarget = target; }
+    void setBrightnessAmount(float amount) { brightnessAmount = amount; }
+    void setEchoAmount(float amount) { echoAmount = amount; }
+    void setEchoDelay(float delayMs) { echoDelayMs = delayMs; }
 
     Camera* getCamera() {return camera.get(); }
 
@@ -55,9 +59,27 @@ private:
     float colorSeed = 0.0f;
 	float baseRotationSpeed = 0.01f;
     int lfoTarget = Parameters::lfoTargetOff;
+    float brightnessAmount = 0.0f;
+
+	float echoAmount = 0.0f;
+	float echoDelayMs = 100.0f;
+	float lastFrameTimeMs = 0.0f;
 
     float     rotationAngle = 0.0f;
     glm::vec3 translation = glm::vec3(0.0f);
+
+    struct TrailSample
+    {
+        double timeMs = 0.0;
+        float  angle = 0.0f;
+        float  scale = 1.0f;
+    };
+
+    static constexpr int trailHistorySize = 256;
+    static constexpr int trailCopies = 12;
+    std::array<TrailSample, trailHistorySize> trailHistory;
+    int trailHead = 0;
+    int trailCount = 0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CubeRenderer)
 };

@@ -10,9 +10,14 @@
     #define ASSERT(x) (void)(x)
 #endif
 
-#define GLCall(x) GLClearError();\
-    x;\
-    ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+#if JUCE_DEBUG
+    #define GLCall(x) GLClearError();\
+        x;\
+        ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+#else
+    #define GLCall(x) x
+#endif
 
 void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
+void DrawPoints(Shader & shader, const VertexArray & vao, int count, bool withGlow, float alpha = 1.0f, float sizeScale = 1.0f);

@@ -4,7 +4,7 @@
 
 #define MIN_FREQ_AUDIBLE  20
 #define MAX_FREQ_AUDIBLE  20000
-#define NUM_AGENTS 9
+#define NUM_AGENTS 10
 
 #define DEFAULT_WINDOW_OPENED false
 
@@ -55,6 +55,12 @@ namespace Parameters
 	static const String nameFilterLowCut = "filterLowCut";
 	static const String nameFilterHighCut = "filterHighCut";
 
+	static const String nameEchoAmount = "echoAmount";
+	static const String nameEchoDelay = "echoDelay";
+	static const String nameSparks = "sparks";
+
+	static const String nameBrightness = "brightness";
+
 	static const int defaultSubdivisions = 25;
 	static const int defaultSize = 100;
 	static const int defaultPointSize = 3;
@@ -64,6 +70,7 @@ namespace Parameters
 	static const int defaultCubeSubdivisions = 10;
 	static const int defaultWaterfallSubdivisions = 20;
 	static const float defaultInputLevelDb = 0.0f;
+	static const float  defaultBrightness = 0.0f;
 
 	static const bool defaultZcrEnabled = false;
 	static const bool defaultPitchEnabled = false;
@@ -90,6 +97,14 @@ namespace Parameters
 	static const float defaultFilterLowCut = 20.0f;
 	static const float defaultFilterHighCut = 20000.0f;
 
+	static const float defaultEchoAmount = 0.0f;
+	static const float defaultEchoDelay = 250.0f;
+	static const float defaultSparks = 0.0f;
+
+	static constexpr int   renderFps = 60;
+	static constexpr float animationReferenceFps = 60.0f;
+	static constexpr float waterfallRowsPerSecond = 30.0f;
+
 	static constexpr int envelopeAgentIndex = 0;
 	static constexpr int zcrAgentIndex = 1;
 	static constexpr int pitchAgentIndex = 2;
@@ -99,6 +114,7 @@ namespace Parameters
 	static constexpr int lfoAgentIndex = 6;
 	static constexpr int waterfallDisplacementAgentIndex = 7;
 	static constexpr int waterfallPointSizeAgentIndex = 8;
+	static constexpr int brightnessAgentIndex = 9;
 
 	static constexpr int lfoTargetOff = 0;
 	static constexpr int lfoTargetColorShift = 1;
@@ -142,6 +158,7 @@ namespace Parameters
 
 		params.push_back(std::make_unique<AudioParameterBool>(ParameterID(nameZcrEnabled, id++), "ZCR Effect", defaultZcrEnabled));
 		params.push_back(std::make_unique<AudioParameterBool>(ParameterID(namePitchEnabled, id++), "Pitch Effect", defaultPitchEnabled));
+		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameBrightness, id++), "Brightness Color", NormalisableRange<float>(0.0f, 100.0f, 1.0f), defaultBrightness));
 
 		params.push_back(std::make_unique<AudioParameterChoice>(ParameterID(nameDimensionMode, id++), "Dimension Mode", DimensionModeOptions, defaultDimensionMode));
 		params.push_back(std::make_unique<AudioParameterChoice>(ParameterID(nameMode3D, id++), "3D Mode", Mode3DOptions, defaultMode3D));
@@ -173,6 +190,10 @@ namespace Parameters
 
 		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameFilterLowCut, id++), "Filter Low Cut", filterRange, defaultFilterLowCut));
 		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameFilterHighCut, id++), "Filter High Cut", filterRange, defaultFilterHighCut));
+
+		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameEchoAmount, id++), "Echo Amount", NormalisableRange<float>(0.0f, 100.0f, 1.0f), defaultEchoAmount));
+		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameEchoDelay, id++), "Echo Delay", NormalisableRange<float>(50.0f, 2000.0f, 1.0f), defaultEchoDelay));
+		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameSparks, id++), "Sparks", NormalisableRange<float>(0.0f, 100.0f, 1.0f), defaultSparks));
 
 		return { params.begin(), params.end() };
 	}

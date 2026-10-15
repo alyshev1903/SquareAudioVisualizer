@@ -19,7 +19,11 @@ VertexBuffer::~VertexBuffer()
 void VertexBuffer::SetData(const void* data, unsigned int size, unsigned int offset)
 {
 	Bind();
-	glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+
+	if (offset == 0)
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+	else
+		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
 void VertexBuffer::Bind() const

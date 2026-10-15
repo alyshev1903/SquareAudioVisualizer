@@ -5,6 +5,7 @@
 #include "Envelope.h"
 #include "Pitch.h"
 #include "ZCR.h"
+#include "Brightness.h"
 
 class FeatureCreator
 {
@@ -19,6 +20,7 @@ public:
         case FeatureType::ENVELOPE: return std::make_unique<Envelope>(type);
         case FeatureType::ZCR: return std::make_unique<ZCR>(type);
         case FeatureType::PITCH: return std::make_unique<Pitch>(type);
+        case FeatureType::BRIGHTNESS: return std::make_unique<Brightness>(type);
         default:
             return nullptr;
         }

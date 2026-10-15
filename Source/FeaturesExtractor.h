@@ -2,7 +2,7 @@
 
 #include "../Source/Parameters.h"
 
-enum class FeatureType {ENVELOPE, ZCR, PITCH};
+enum class FeatureType {ENVELOPE, ZCR, PITCH, BRIGHTNESS};
 
 class FeaturesExtractor
 {
@@ -23,7 +23,7 @@ public:
 
     bool isFreqDomain()
     {
-        return type == FeatureType::PITCH;
+        return type == FeatureType::PITCH || type == FeatureType::BRIGHTNESS;
     }
 
     FeatureType getType()

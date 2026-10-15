@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "VertexBufferLayout.h"
 #include "FFTProcessor.h"
+#include "ColorUtils.h"
 
 #include "BinaryData.h"
 
@@ -60,7 +61,8 @@ void SquareGridRenderer::updateFromAudio()
     float effectiveDisplacement = displacementScale * (0.3f + 0.7f * envelopeValue);
 
     float lfoValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::lfoAgentIndex));
-    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f);
+    float brightnessValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::brightnessAgentIndex));
+    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f) + brightnessAmount * brightnessValue;
 
     float currentPointSize = pointSize;
     if (zcrEffectEnabled || lfoTarget == Parameters::lfoTarget2DPointSize)
@@ -71,6 +73,16 @@ void SquareGridRenderer::updateFromAudio()
     }
 
     square->applyColumnSpectrum(vertices, bands, effectiveDisplacement, currentPointSize, hue);
+
+    if (waveAmount > 0.001f)
+    {
+        updateWaves(hue, currentPointSize);
+    }
+    else
+    {
+        for (auto& w : waves)
+            w.active = false;
+    }
 
     if (pitchEffectEnabled)
         highlightPitchColumns(currentPointSize);
@@ -124,7 +136,10 @@ void SquareGridRenderer::highlightPitchColumns(float basePointSize)
 void SquareGridRenderer::render(int currentWidth, int currentHeight)
 {
     updateFromAudio();
-
+    
+    GLCall(glEnable(GL_DEPTH_TEST));
+    GLCall(glDepthMask(GL_TRUE));
+    GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     GLCall(glClearColor(0.05f, 0.05f, 0.05f, 1.0f));
     GLCall(glClear(GL_COLOR_BUFFER_BIT));
     GLCall(glViewport(0, 0, currentWidth, currentHeight));
@@ -139,8 +154,107 @@ void SquareGridRenderer::render(int currentWidth, int currentHeight)
     glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
     shader->SetUniformMat4f("u_Model", model);
 
-    vao->Bind();
-    GLCall(glDrawArrays(GL_POINTS, 0, (GLsizei)vertices.size()));
+    DrawPoints(*shader, *vao, (int)vertices.size(), !useTexture);
+}
+
+void SquareGridRenderer::spawnWave(float strength)
+{
+    const int cols = subdivisions + 1;
+
+    float cx = random.nextFloat() * (float)(cols - 1);
+    const float pitchHz = sharedAudioData.readPitch();
+    if (pitchHz >= minFreqHz && pitchHz <= maxFreqHz)
+        cx = (float)columnForFrequency(pitchHz);
+
+    const float brightness = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::brightnessAgentIndex));
+
+    Wave* slot = &waves[0];
+    for (auto& w : waves)
+    {
+        if (!w.active)
+        {
+            slot = &w;
+            break;
+        }
+        if (w.age > slot->age)
+            slot = &w;
+    }
+
+    slot->cx = cx;
+    slot->cy = brightness * (float)(cols - 1);
+    slot->age = 0.0f;
+    slot->strength = strength;
+    slot->tone = brightness;
+    slot->active = true;
+}
+
+void SquareGridRenderer::updateWaves(float hue, float basePointSize)
+{
+    const double nowMs = juce::Time::getMillisecondCounterHiRes();
+    const float dt = lastFrameTimeMs > 0.0
+        ? (float)juce::jlimit(0.0, 100.0, nowMs - lastFrameTimeMs) * 0.001f
+        : 0.0f;
+    lastFrameTimeMs = nowMs;
+
+    const float onset = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::zcrAgentIndex));
+    if (onset > 0.3f && onset - lastOnset > 0.1f && nowMs - lastWaveTimeMs > 100.0)
+    {
+        spawnWave(onset);
+        lastWaveTimeMs = nowMs;
+    }
+    lastOnset = onset;
+
+    const int   cols = subdivisions + 1;
+    const float speed = 0.9f * (float)cols;
+    const float thickness = juce::jmax(1.5f, 0.06f * (float)cols);
+    const float lifetime = 1.3f;
+
+    for (auto& w : waves)
+    {
+        if (!w.active)
+            continue;
+
+        w.age += dt;
+        if (w.age > lifetime)
+        {
+            w.active = false;
+            continue;
+        }
+
+        float r, g, b;
+        ColorUtils::heatColor(0.4f + 0.6f * w.tone, r, g, b, hue);
+        r += (1.0f - r) * 0.4f;
+        g += (1.0f - g) * 0.4f;
+        b += (1.0f - b) * 0.4f;
+
+        const float radius = w.age * speed;
+        const float amplitude = w.strength * (1.0f - w.age / lifetime) * waveAmount;
+        const float cx = juce::jmin(w.cx, (float)(cols - 1));
+        const float cy = juce::jmin(w.cy, (float)(cols - 1));
+
+        for (int i = 0; i < cols; ++i)
+        {
+            for (int j = 0; j < cols; ++j)
+            {
+                const float dx = (float)j - cx;
+                const float dy = (float)i - cy;
+                const float offset = std::sqrt(dx * dx + dy * dy) - radius;
+                if (std::abs(offset) > 3.0f * thickness)
+                    continue;
+
+                const float q = offset / thickness;
+                const float k = amplitude * std::exp(-q * q);
+                if (k < 0.01f)
+                    continue;
+
+                GridVertex& v = vertices[(size_t)(i * cols + j)];
+                v.r += (r - v.r) * k;
+                v.g += (g - v.g) * k;
+                v.b += (b - v.b) * k;
+                v.pointSize = juce::jmax(v.pointSize, basePointSize * (1.0f + 1.6f * k));
+            }
+        }
+    }
 }
 
 void SquareGridRenderer::setSubdivisions(int newSubdivisions)
@@ -158,9 +272,6 @@ void SquareGridRenderer::setSize(float newSize)
 void SquareGridRenderer::setPointSize(float newPointSize)
 {
     pointSize = newPointSize;
-    for (auto& v : vertices)
-        v.pointSize = pointSize;
-    vertexBuffer->SetData(vertices.data(), (unsigned int)(vertices.size() * sizeof(GridVertex)));
 }
 
 void SquareGridRenderer::setDisplacementScale(float newScale)

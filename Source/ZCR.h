@@ -16,13 +16,25 @@ public:
 	float getValue() override;
 	String getName() override;
 
-	void processData();
-
 private:
-	static constexpr int maxBufferSize = 256;
-	std::array<float, maxBufferSize> audioBuffer{};
-	int bufferIndex = 0;
-	float zcr = 0.0f;
+	void updateCoefficients();
+
+	double sampleRate = 44100.0;
+
+	float fastEnv = 0.0f;
+	float slowEnv = 0.0f;
+	float pulse = 0.0f;
+
+	float fastCoef = 0.0f;
+	float slowCoef = 0.0f;
+	float releaseCoef = 0.0f;
+
+	static constexpr float fastTimeMs = 5.0f;
+	static constexpr float slowTimeMs = 120.0f;
+	static constexpr float releaseTimeMs = 120.0f;
+	static constexpr float noiseFloor = 0.001f;
+	static constexpr float ratioStart = 1.5f;
+	static constexpr float ratioFull = 4.0f;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ZCR)
 };

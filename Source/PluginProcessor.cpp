@@ -19,8 +19,7 @@ SquareAudioVisualizerAudioProcessor::SquareAudioVisualizerAudioProcessor()
     zcrAgent.setAgentType(AgentType::AUDIO);
     zcrAgent.setSourceType(SourceType::FLUID);
     zcrAgent.setActive(true);
-    zcrAgent.setRemapValue(4.0f);
-    zcrAgent.setSmoothingFactor(0.8f);
+    zcrAgent.setSmoothingFactor(1.0f);
 
     auto& pitchAgent = squareVisual.getAgent(Parameters::pitchAgentIndex);
     pitchAgent.setFeature(FeatureType::PITCH);
@@ -39,6 +38,7 @@ SquareAudioVisualizerAudioProcessor::SquareAudioVisualizerAudioProcessor()
     cubePointSizeAgent.setAgentType(AgentType::AUDIO);
     cubePointSizeAgent.setSourceType(SourceType::FLUID);
     cubePointSizeAgent.setActive(true);
+    cubePointSizeAgent.setSmoothingFactor(1.0f);
 
     auto& cubeRotationAgent = squareVisual.getAgent(Parameters::cubeRotationAgentIndex);
     cubeRotationAgent.setFeature(FeatureType::PITCH);
@@ -57,8 +57,14 @@ SquareAudioVisualizerAudioProcessor::SquareAudioVisualizerAudioProcessor()
     waterfallPointSizeAgent.setAgentType(AgentType::AUDIO);
     waterfallPointSizeAgent.setSourceType(SourceType::FLUID);
     waterfallPointSizeAgent.setActive(true);
-    waterfallPointSizeAgent.setRemapValue(4.0f);
-    waterfallPointSizeAgent.setSmoothingFactor(0.8f);
+    waterfallPointSizeAgent.setSmoothingFactor(1.0f);
+
+    auto& brightnessAgent = squareVisual.getAgent(Parameters::brightnessAgentIndex);
+    brightnessAgent.setFeature(FeatureType::BRIGHTNESS);
+    brightnessAgent.setAgentType(AgentType::AUDIO);
+    brightnessAgent.setSourceType(SourceType::FLUID);
+    brightnessAgent.setSmoothingFactor(1.0f);
+    brightnessAgent.setActive(true);
 
     auto& lfoAgent = squareVisual.getAgent(Parameters::lfoAgentIndex);
     lfoAgent.setAgentType(AgentType::OSC);

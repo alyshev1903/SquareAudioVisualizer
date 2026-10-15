@@ -10,7 +10,7 @@
 #include "SharedAudioData.h"
 #include "Parameters.h"
 
-class OpenGLComponent : public juce::Component, public juce::OpenGLRenderer
+class OpenGLComponent : public juce::Component, public juce::OpenGLRenderer, private juce::Timer
 {
 public:
     OpenGLComponent(SquareVisual& visualToRender, SharedAudioData& sharedData, AudioProcessorValueTreeState& stateToRead);
@@ -35,6 +35,7 @@ private:
 
     void pullParameters();
     ActiveView getActiveView() const;
+    void timerCallback() override;
 
     juce::OpenGLContext m_GLContext;
 
@@ -50,12 +51,28 @@ private:
 
     int lastSeenTextureVersion = 0;
 
-    int   lastSubdivisions = -1;
-    float lastSize = -1.0f;
-    int   lastCubeSubdivisions = -1;
-    float lastCubeSize = -1.0f;
-    int   lastWaterfallSubdivisions = -1;
-    float lastWaterfallSize = -1.0f;
+    struct GeometryState
+    {
+        int   subdivisions = -1;
+        float size = -1.0f;
+    };
+
+    template <typename Renderer>
+    static void applyGeometry(Renderer& renderer, int subdivisions, float size, GeometryState& last)
+    {
+        if (subdivisions != last.subdivisions)
+        {
+            renderer.setSubdivisions(subdivisions);
+            last.subdivisions = subdivisions;
+        }
+        if (std::abs(size - last.size) > 0.001f)
+        {
+            renderer.setSize(size);
+            last.size = size;
+        }
+    }
+
+    GeometryState last2D, lastCube, lastWaterfall;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OpenGLComponent)
 };
