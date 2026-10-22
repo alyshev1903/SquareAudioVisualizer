@@ -14,7 +14,6 @@ OpenGLWindow::OpenGLWindow(SquareAudioVisualizerAudioProcessor& p, AudioProcesso
 
 OpenGLWindow::~OpenGLWindow()
 {
-    audioProcessor.setWindowOpened(false);
     openGLComponent.reset();
 }
 

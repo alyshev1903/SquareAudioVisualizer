@@ -5,6 +5,8 @@
 #include "SharedAudioData.h"
 #include "BandFilter.h"
 
+class OpenGLWindow;
+
 class SquareAudioVisualizerAudioProcessor : public juce::AudioProcessor
 {
 public:
@@ -35,9 +37,8 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    bool getWindowOpened();
-
-    void setWindowOpened(bool value);
+    void openExternalWindow();
+    bool isExternalWindowOpen() const { return externalWindow != nullptr; }
 
     SharedAudioData& getSharedAudioData() { return sharedAudioData; }
 
@@ -49,7 +50,7 @@ private:
     juce::AudioBuffer<float> monoBuffer;
     BandFilter bandFilter;
 
-	bool windowOpened = DEFAULT_WINDOW_OPENED;
+    std::unique_ptr<OpenGLWindow> externalWindow;
      
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SquareAudioVisualizerAudioProcessor)
 };

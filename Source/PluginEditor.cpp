@@ -92,14 +92,7 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
     addAndMakeVisible(pitchToggle);
 
     addAndMakeVisible(OpenGLWindowButton);
-    OpenGLWindowButton.onClick = [this]
-    {
-        if (!audioProcessor.getWindowOpened())
-        {
-            openOpenGLWindow();
-            audioProcessor.setWindowOpened(true);
-        }
-    };
+    OpenGLWindowButton.onClick = [this] { audioProcessor.openExternalWindow(); };
 
     addAndMakeVisible(filterDisplay);
 
@@ -375,12 +368,6 @@ void SquareAudioVisualizerAudioProcessorEditor::loadTextureButtonClicked()
         if (file.existsAsFile())
             m_GLComponent.requestTexture(file);
     });
-}
-
-void SquareAudioVisualizerAudioProcessorEditor::openOpenGLWindow()
-{
-    openGLWindow = std::make_unique<OpenGLWindow>(audioProcessor, valueTreeState, squareVisual);
-    openGLWindow->onCloseButtonPressed = [this] { openGLWindow.reset(); };
 }
 
 WrappedPluginEditor::WrappedPluginEditor(SquareAudioVisualizerAudioProcessor& p, AudioProcessorValueTreeState& vts, SquareVisual& s)

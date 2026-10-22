@@ -1,6 +1,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "OpenGLWindow.h"
 
 //==============================================================================
 SquareAudioVisualizerAudioProcessor::SquareAudioVisualizerAudioProcessor()
@@ -77,6 +78,7 @@ SquareAudioVisualizerAudioProcessor::SquareAudioVisualizerAudioProcessor()
 
 SquareAudioVisualizerAudioProcessor::~SquareAudioVisualizerAudioProcessor()
 {
+    externalWindow.reset();
 }
 
 //==============================================================================
@@ -206,14 +208,16 @@ void SquareAudioVisualizerAudioProcessor::processBlock(juce::AudioBuffer<float>&
 }
 
 
-bool SquareAudioVisualizerAudioProcessor::getWindowOpened()
+void SquareAudioVisualizerAudioProcessor::openExternalWindow()
 {
-	return windowOpened;
-}
+    if (externalWindow != nullptr)
+    {
+        externalWindow->toFront(true);
+        return;
+    }
 
-void SquareAudioVisualizerAudioProcessor::setWindowOpened(bool value)
-{
-	windowOpened = value;
+    externalWindow = std::make_unique<OpenGLWindow>(*this, parameters, squareVisual);
+    externalWindow->onCloseButtonPressed = [this] { externalWindow.reset(); };
 }
 
 //==============================================================================

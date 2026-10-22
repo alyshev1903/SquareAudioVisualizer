@@ -2,7 +2,6 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "OpenGLWindow.h"
 #include "OpenGLComponent.h"
 #include "FilterDisplay.h"
 #include "Parameters.h"
@@ -25,7 +24,6 @@ private:
     OpenGLComponent m_GLComponent;
     FilterDisplay filterDisplay;
 
-    void openOpenGLWindow();
     void loadTextureButtonClicked();
 
     void updateControlVisibility();
@@ -96,8 +94,6 @@ private:
     std::unique_ptr<SliderAttachment> brightnessAttachment;
 
     std::unique_ptr<SliderAttachment> echoAmountAttachment, echoDelayAttachment, sparksAttachment;
-
-    std::unique_ptr<OpenGLWindow> openGLWindow;
 
     std::unique_ptr<juce::FileChooser> fileChooser;
 
