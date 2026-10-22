@@ -60,6 +60,7 @@ private:
 	float baseRotationSpeed = 0.01f;
     int lfoTarget = Parameters::lfoTargetOff;
     float brightnessAmount = 0.0f;
+	float pale = 0.0f;
 
 	float echoAmount = 0.0f;
 	float echoDelayMs = 100.0f;

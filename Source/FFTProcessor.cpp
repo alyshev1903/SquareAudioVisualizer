@@ -84,8 +84,17 @@ std::vector<float> FFTProcessor::computeBands(const float* magnitudes,
         for (int bin = binLo; bin <= binHi; ++bin)
             peak = juce::jmax(peak, magnitudes[bin]);
 
-        constexpr float magnitudeCeiling = 4.0f;
-        bands[(size_t)band] = std::sqrt(juce::jlimit(0.0f, magnitudeCeiling, peak) / magnitudeCeiling);
+        constexpr float floorDb = -80.0f;
+        constexpr float ceilingDb = -20.0f;
+        constexpr float tiltDbPerOctave = 3.0f;
+        constexpr float tiltReferenceHz = 500.0f;
+
+        const float amplitude = peak * 4.0f / (float)fftSize;
+        const float centerHz = std::sqrt(freqLo * freqHi);
+        const float db = juce::Decibels::gainToDecibels(amplitude, floorDb - 20.0f)
+            + tiltDbPerOctave * std::log2(centerHz / tiltReferenceHz);
+
+        bands[(size_t)band] = juce::jlimit(0.0f, 1.0f, (db - floorDb) / (ceilingDb - floorDb));
     }
 
     return bands;

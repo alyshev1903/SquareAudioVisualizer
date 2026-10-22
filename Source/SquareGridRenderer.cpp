@@ -62,7 +62,8 @@ void SquareGridRenderer::updateFromAudio()
 
     float lfoValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::lfoAgentIndex));
     float brightnessValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::brightnessAgentIndex));
-    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f) + brightnessAmount * brightnessValue;
+    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f);
+    pale = brightnessAmount * brightnessValue;
 
     float currentPointSize = pointSize;
     if (zcrEffectEnabled || lfoTarget == Parameters::lfoTarget2DPointSize)
@@ -145,6 +146,7 @@ void SquareGridRenderer::render(int currentWidth, int currentHeight)
     GLCall(glViewport(0, 0, currentWidth, currentHeight));
 
     shader->Bind();
+    shader->SetUniform1f("u_Pale", pale);
     camera->Matrix(45.0f, 0.1f, 1000.0f, *shader, currentWidth, currentHeight);
     shader->SetUniform1i("u_UseTexture", useTexture ? 1 : 0);
 

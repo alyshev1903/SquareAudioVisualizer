@@ -3,7 +3,8 @@
 <JUCERPROJECT id="lL4iZL" name="SquareAudioVisualizer" projectType="audioplug"
               useAppConfig="0" jucerFormatVersion="1" pluginName="Square Audio Visualizer"
               pluginManufacturer="LIM" pluginManufacturerCode="LIM!" pluginChannelConfigs="{2,1},{2,2}"
-              pluginVST3Category="Analyzer" pluginVSTCategory="kPlugCategAnalysis">
+              pluginVST3Category="Analyzer" pluginVSTCategory="kPlugCategAnalysis"
+              pluginFormats="buildAU,buildStandalone,buildVST3">
   <MAINGROUP id="O2zEwv" name="SquareAudioVisualizer">
     <GROUP id="{9EC0C1AA-A000-76A2-6CCD-886EA792DBC6}" name="res">
       <GROUP id="{FDB3CCB2-460F-7338-E3FB-5BE40EF45662}" name="shaders">
@@ -871,5 +872,55 @@
         <MODULEPATH id="juce_analytics" path="../../JUCE/juce-8.0.12-windows/JUCE/modules"/>
       </MODULEPATHS>
     </VS2026>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_analytics" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_animation" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors_headless" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_opengl" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_analytics" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_animation" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors_headless" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+        <MODULEPATH id="juce_opengl" path="C:\Users\alysh\OneDrive\&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1089;&#1090;&#1086;&#1083;\Programming\JUCE\juce-8.0.12-windows\JUCE\modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
   </EXPORTFORMATS>
 </JUCERPROJECT>

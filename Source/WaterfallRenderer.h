@@ -56,6 +56,7 @@ private:
     float maxFreqHz = Parameters::maxFreqAudible;
 	float colorSeed = 0.0f;
     float brightnessAmount = 0.0f;
+	float pale = 0.0f;
 
     double lastFrameTimeMs = 0.0;
     float  rowAccumulator = 0.0f;

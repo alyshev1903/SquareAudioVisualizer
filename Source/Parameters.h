@@ -133,9 +133,9 @@ namespace Parameters
 		return lfoTarget == effectTarget ? lfoAgentIndex : audioAgentIndex;
 	}
 
-	static const StringArray PointOrTextureOptions = { "Point", "Texture" };
+	static const StringArray PointOrTextureOptions = { "Points", "Texture" };
 
-	static const StringArray DimensionModeOptions = { "2D", "3D" };
+	static const StringArray DimensionModeOptions = { "Flattened", "3D" };
 	static const StringArray Mode3DOptions = { "Spectrogram", "Visualizer" };
 
 	static const StringArray LfoTargetOptions = { "Off", "Color shift", "2D Point size", "Cube Breathe", "Cube Point size", "Cube Rotation", "Waterfall Displacement", "Waterfall Point size" };
@@ -158,7 +158,7 @@ namespace Parameters
 
 		params.push_back(std::make_unique<AudioParameterBool>(ParameterID(nameZcrEnabled, id++), "ZCR Effect", defaultZcrEnabled));
 		params.push_back(std::make_unique<AudioParameterBool>(ParameterID(namePitchEnabled, id++), "Pitch Effect", defaultPitchEnabled));
-		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameBrightness, id++), "Brightness Color", NormalisableRange<float>(0.0f, 100.0f, 1.0f), defaultBrightness));
+		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameBrightness, id++), "Brightness Pale", NormalisableRange<float>(0.0f, 100.0f, 1.0f), defaultBrightness));
 
 		params.push_back(std::make_unique<AudioParameterChoice>(ParameterID(nameDimensionMode, id++), "Dimension Mode", DimensionModeOptions, defaultDimensionMode));
 		params.push_back(std::make_unique<AudioParameterChoice>(ParameterID(nameMode3D, id++), "3D Mode", Mode3DOptions, defaultMode3D));

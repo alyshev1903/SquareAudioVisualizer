@@ -77,6 +77,7 @@ private:
 	float colorSeed = 0.0f;
     float brightnessAmount = 0.0f;
     int lfoTarget = Parameters::lfoTargetOff;
+	float pale = 0.0f;
 
     struct Wave
     {

@@ -103,7 +103,8 @@ void WaterfallRenderer::updateFromAudio()
 
     float lfoValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::lfoAgentIndex));
     float brightnessValue = juce::jlimit(0.0f, 1.0f, sharedAudioData.readAgentValue(Parameters::brightnessAgentIndex));
-    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f) + brightnessAmount * brightnessValue;
+    float hue = colorSeed + (lfoTarget == Parameters::lfoTargetColorShift ? lfoValue : 0.0f);
+    pale = brightnessAmount * brightnessValue;
 
     for (int row = 0; row < n; ++row)
     {
@@ -153,6 +154,7 @@ void WaterfallRenderer::render(int currentWidth, int currentHeight)
     GLCall(glViewport(0, 0, currentWidth, currentHeight));
 
     shader->Bind();
+	shader->SetUniform1f("u_Pale", pale);
     camera->Matrix(45.0f, 0.1f, 2000.0f, *shader, currentWidth, currentHeight);
     shader->SetUniform1i("u_UseTexture", 0);
 
