@@ -19,7 +19,7 @@ void SquareVisual::init(SharedAudioData& sharedData)
         agents[(size_t)i].prepare(sharedData, i);
 }
 
-void SquareVisual::processAudioBlock(const juce::AudioBuffer<float>& buffer, double sampleRate, float inputGain)
+void SquareVisual::processAudioBlock(const juce::AudioBuffer<float>& buffer, double sampleRate)
 {
     if (sharedAudioData == nullptr || buffer.getNumChannels() == 0)
         return;
@@ -28,7 +28,7 @@ void SquareVisual::processAudioBlock(const juce::AudioBuffer<float>& buffer, dou
 
     auto* channelData = buffer.getReadPointer(0);
     for (int s = 0; s < buffer.getNumSamples(); ++s)
-        spectrumAnalyzer.pushIntoFifo(channelData[s] * inputGain);
+        spectrumAnalyzer.pushIntoFifo(channelData[s]);
 
     if (spectrumAnalyzer.getNextFFTBlockReady())
     {

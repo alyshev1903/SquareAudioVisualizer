@@ -64,7 +64,7 @@ private:
 
 	float echoAmount = 0.0f;
 	float echoDelayMs = 100.0f;
-	float lastFrameTimeMs = 0.0f;
+	double lastFrameTimeMs = 0.0f;
 
     float     rotationAngle = 0.0f;
     glm::vec3 translation = glm::vec3(0.0f);

@@ -156,14 +156,13 @@ void SquareAudioVisualizerAudioProcessor::processBlock(juce::AudioBuffer<float>&
     monoBuffer.copyFrom(0, 0, buffer, 0, 0, numSamples);
     for (int ch = 1; ch < numChannels; ++ch)
         monoBuffer.addFrom(0, 0, buffer, ch, 0, numSamples);
-    if (numChannels > 1)
-        monoBuffer.applyGain(1.0f / (float)numChannels);
+    monoBuffer.applyGain(inputGain / (float)numChannels);
 
     bandFilter.setCutoffs(parameters.getRawParameterValue(Parameters::nameFilterLowCut)->load(),
         parameters.getRawParameterValue(Parameters::nameFilterHighCut)->load());
     bandFilter.process(monoBuffer.getWritePointer(0), numSamples);
 
-    squareVisual.processAudioBlock(monoBuffer, sr, inputGain);
+    squareVisual.processAudioBlock(monoBuffer, sr);
 
     const bool  lfoSync = parameters.getRawParameterValue(Parameters::nameLfoSync)->load() > 0.5f;
     const float lfoRate = parameters.getRawParameterValue(Parameters::nameLfoRate)->load();

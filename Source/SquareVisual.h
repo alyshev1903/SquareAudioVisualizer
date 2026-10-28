@@ -13,7 +13,7 @@ public:
     ~SquareVisual();
 
     void init(SharedAudioData& sharedData);
-    void processAudioBlock(const juce::AudioBuffer<float>& buffer, double sampleRate, float inputGain);
+    void SquareVisual::processAudioBlock(const juce::AudioBuffer<float>& buffer, double sampleRate);
 
     void setAlpha(float newAlpha);
     void setName(String newName);
