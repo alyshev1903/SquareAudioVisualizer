@@ -33,6 +33,9 @@ void OpenGLComponent::newOpenGLContextCreated()
     renderer2D = std::make_unique<SquareGridRenderer>(visual, sharedAudioData);
     cubeRenderer = std::make_unique<CubeRenderer>(sharedAudioData);
     waterfallRenderer = std::make_unique<WaterfallRenderer>(sharedAudioData);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void OpenGLComponent::pullParameters()
@@ -118,6 +121,35 @@ void OpenGLComponent::renderOpenGL()
         case ActiveView::Waterfall3D:if (waterfallRenderer) waterfallRenderer->render(pixelWidth, pixelHeight); break;
         case ActiveView::Cube3D:if (cubeRenderer) cubeRenderer->render(pixelWidth, pixelHeight); break;
         }
+    }
+
+    const double age = sharedAudioData.readSpectrumAgeMs();
+    if (age >= 0.0)
+    {
+        ageSumMs += age;
+        ageMaxMs = juce::jmax(ageMaxMs, age);
+        ++ageCount;
+    }
+
+    const auto now = juce::Time::getHighResolutionTicks();
+    if (juce::Time::highResolutionTicksToSeconds(now - lastReportTicks) > 5.0)
+    {
+        if (ageCount > 0)
+        {
+            const juce::String line = juce::Time::getCurrentTime().toString(true, true)
+                + "  contesto " + juce::String::toHexString((juce::pointer_sized_int)this)
+                + "  media " + juce::String(ageSumMs / ageCount, 1) + " ms"
+                + "  max " + juce::String(ageMaxMs, 1) + " ms"
+                + "  fotogrammi/s " + juce::String(ageCount / 5.0, 1);
+
+            juce::File::getSpecialLocation(juce::File::userDesktopDirectory)
+                .getChildFile("latenza_squareaudiovisualizer.txt")
+                .appendText(line + "\n");
+        }
+        ageSumMs = 0.0;
+        ageMaxMs = 0.0;
+        ageCount = 0;
+        lastReportTicks = now;
     }
 }
 

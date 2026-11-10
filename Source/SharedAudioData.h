@@ -70,6 +70,7 @@ public:
         for (int i = 0; i < n; ++i)
             spectrum[i].store(magnitudes[i]);
         spectrumBinsWritten.store(n);
+        spectrumTicks.store(juce::Time::getHighResolutionTicks());
     }
 
     int readSpectrum(std::vector<float>& outMagnitudes) const
@@ -100,17 +101,24 @@ public:
     }
 
     void writeSampleRate(double sr) { sampleRate.store(sr); }
+    double readSpectrumAgeMs() const
+    {
+        const auto t = spectrumTicks.load();
+        if (t == 0) return -1.0;
+        return juce::Time::highResolutionTicksToSeconds(juce::Time::getHighResolutionTicks() - t) * 1000.0;
+    }
     double readSampleRate() const { return sampleRate.load(); }
 
 private:
-    std::array<std::atomic<float>, maxAgents> agentValues{ 0.0f };
-    std::atomic<float> dominantFrequency{ 0.0f };
-    std::array<std::atomic<float>, maxHarmonics> harmonics{ 0.0f };
-    std::atomic<int> harmonicCount{ 0 };
+    std::array<std::atomic<float>, maxAgents> agentValues{0.0f};
+    std::atomic<float> dominantFrequency{0.0f};
+    std::array<std::atomic<float>, maxHarmonics> harmonics{0.0f};
+    std::atomic<int> harmonicCount{0};
 
     std::array<std::atomic<float>, spectrumBins> spectrum{};
-    std::atomic<int> spectrumBinsWritten{ 0 };
-    std::atomic<double> sampleRate{ 44100.0 };
+    std::atomic<int> spectrumBinsWritten{0};
+    std::atomic<double> sampleRate{ 44100.0};
+    std::atomic<juce::int64> spectrumTicks{0};
 
     mutable juce::CriticalSection textureLock;
     juce::String pendingTexturePath;

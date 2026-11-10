@@ -2,7 +2,8 @@
 #include "PluginEditor.h"
 
 SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEditor(SquareAudioVisualizerAudioProcessor& p, AudioProcessorValueTreeState& vts, SquareVisual& sv)
-    : audioProcessor(p), valueTreeState(vts), squareVisual(sv),
+    : AudioProcessorEditor(&p),
+    audioProcessor(p), valueTreeState(vts), squareVisual(sv),
     m_GLComponent(sv, p.getSharedAudioData(), vts),
     filterDisplay(vts, p.getSharedAudioData())
 {
@@ -368,19 +369,4 @@ void SquareAudioVisualizerAudioProcessorEditor::loadTextureButtonClicked()
         if (file.existsAsFile())
             m_GLComponent.requestTexture(file);
     });
-}
-
-WrappedPluginEditor::WrappedPluginEditor(SquareAudioVisualizerAudioProcessor& p, AudioProcessorValueTreeState& vts, SquareVisual& s)
-    : AudioProcessorEditor(&p), editorComponent(p, vts, s)
-{
-    setSize(960, 920);
-    addAndMakeVisible(editorComponent);
-}
-
-WrappedPluginEditor::~WrappedPluginEditor()
-{}
-
-void WrappedPluginEditor::resized()
-{
-    editorComponent.setBounds(getLocalBounds());
 }

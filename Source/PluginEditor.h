@@ -7,7 +7,7 @@
 #include "Parameters.h"
 #include "MyTheme.h"
 
-class SquareAudioVisualizerAudioProcessorEditor : public juce::Component
+class SquareAudioVisualizerAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
     SquareAudioVisualizerAudioProcessorEditor(SquareAudioVisualizerAudioProcessor&, AudioProcessorValueTreeState&, SquareVisual&);
@@ -100,17 +100,4 @@ private:
     MyTheme Theme;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SquareAudioVisualizerAudioProcessorEditor)
-};
-
-class WrappedPluginEditor : public AudioProcessorEditor
-{
-public:
-    WrappedPluginEditor(SquareAudioVisualizerAudioProcessor& p, AudioProcessorValueTreeState& vts, SquareVisual& s);
-    ~WrappedPluginEditor();
-    void resized() override;
-
-private:
-    SquareAudioVisualizerAudioProcessorEditor editorComponent;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WrappedPluginEditor)
 };

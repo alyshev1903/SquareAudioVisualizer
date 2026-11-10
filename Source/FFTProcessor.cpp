@@ -27,7 +27,7 @@ void FFTProcessor::pushIntoFifo(float sample) noexcept
 void FFTProcessor::computeFFT()
 {
     window.multiplyWithWindowingTable(fftData, fftSize);
-    forwardFFT.performFrequencyOnlyForwardTransform(fftData, false);
+    forwardFFT.performFrequencyOnlyForwardTransform(fftData, true);
 }
 
 float* FFTProcessor::getFFTData()

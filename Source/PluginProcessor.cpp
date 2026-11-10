@@ -227,7 +227,7 @@ bool SquareAudioVisualizerAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SquareAudioVisualizerAudioProcessor::createEditor()
 {
-    return new WrappedPluginEditor(*this, parameters, squareVisual);
+    return new SquareAudioVisualizerAudioProcessorEditor(*this, parameters, squareVisual);
 }
 
 //==============================================================================

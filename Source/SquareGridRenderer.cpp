@@ -12,7 +12,7 @@
 using namespace ::juce::gl;
 
 SquareGridRenderer::SquareGridRenderer(SquareVisual& visualIn, SharedAudioData& sharedDataIn)
-    : visual(visualIn), sharedAudioData(sharedDataIn)
+    : sharedAudioData(sharedDataIn)
 {
     GLCall(glEnable(GL_BLEND));
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -98,7 +98,7 @@ int SquareGridRenderer::columnForFrequency(float hz) const
     float t = (std::log10(hz) - logMin) / (logMax - logMin);
 
     int cols = subdivisions + 1;
-    return juce::jlimit(0, cols - 1, (int)std::round(t * (float)(cols - 1)));
+    return juce::jlimit(0, cols - 1, (int)(t * (float)cols));
 }
 
 void SquareGridRenderer::highlightColumn(int column, float brightness, float basePointSize, float sizeBoost)

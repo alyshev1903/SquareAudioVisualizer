@@ -51,6 +51,10 @@ private:
 
     int lastSeenTextureVersion = 0;
 
+    double ageSumMs = 0.0, ageMaxMs = 0.0;
+    int ageCount = 0;
+    juce::int64 lastReportTicks = 0;
+
     struct GeometryState
     {
         int   subdivisions = -1;

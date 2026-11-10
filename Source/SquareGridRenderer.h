@@ -52,7 +52,6 @@ private:
     void highlightColumn(int column, float brightness, float basePointSize, float sizeBoost);
     void highlightPitchColumns(float basePointSize);
 
-    SquareVisual& visual;
     SharedAudioData& sharedAudioData;
 
     std::unique_ptr<Square>       square;
