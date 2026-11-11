@@ -33,6 +33,7 @@ public:
     void setBrightnessAmount(float amount) { brightnessAmount = amount; }
     void setEchoAmount(float amount) { echoAmount = amount; }
     void setEchoDelay(float delayMs) { echoDelayMs = delayMs; }
+	void setSaturation(float amount) { saturation = amount; }
 
     Camera* getCamera() {return camera.get(); }
 
@@ -61,6 +62,7 @@ private:
     int lfoTarget = Parameters::lfoTargetOff;
     float brightnessAmount = 0.0f;
 	float pale = 0.0f;
+	float saturation = 1.0f;
 
 	float echoAmount = 0.0f;
 	float echoDelayMs = 100.0f;

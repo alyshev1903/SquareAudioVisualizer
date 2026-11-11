@@ -31,6 +31,7 @@ public:
     void setBrightnessAmount(float amount) { brightnessAmount = amount;}
     void setEchoAmount(float amount) { echoAmount = amount; }
     void setEchoDelay(float delayMs) { echoDelayMs = delayMs; }
+	void setSaturation(float amount) { saturation = amount; }
 
     Camera* getCamera() { return camera.get(); }
 
@@ -57,6 +58,7 @@ private:
 	float colorSeed = 0.0f;
     float brightnessAmount = 0.0f;
 	float pale = 0.0f;
+    float saturation = 1.0f;
 
     double lastFrameTimeMs = 0.0;
     float  rowAccumulator = 0.0f;
@@ -65,10 +67,11 @@ private:
 
     std::unique_ptr<VertexArray>  echoVao;
     std::unique_ptr<VertexBuffer> echoVertexBuffer;
-    std::vector<GridVertex>       echoVertices;
+    std::vector<GridVertex> echoVertices;
 
     static constexpr float echoHueOffset = 0.45f;
     static constexpr float echoGapFactor = 0.15f;
+    static constexpr int maxEchoShiftRows = (int)(2.0f * Parameters::waterfallRowsPerSecond);
     float echoAmount = 0.0f;
     float echoDelayMs = 250.0f;
 

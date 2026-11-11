@@ -42,6 +42,7 @@ public:
     void setColorSeed(float seed) {colorSeed = seed; }
     void setLfoTarget(int target) { lfoTarget = target; }
     void setBrightnessAmount(float amount) { brightnessAmount = amount; }
+	void setSaturation(float amount) { saturation = amount; }
 
     void setWaveAmount(float amount) { waveAmount = amount; }
 
@@ -77,6 +78,7 @@ private:
     float brightnessAmount = 0.0f;
     int lfoTarget = Parameters::lfoTargetOff;
 	float pale = 0.0f;
+	float saturation = 1.0f;
 
     struct Wave
     {

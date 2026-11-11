@@ -246,6 +246,22 @@ void SquareAudioVisualizerAudioProcessor::setStateInformation (const void* data,
             parameters.replaceState(ValueTree::fromXml(*xmlState));
 }
 
+bool SquareAudioVisualizerAudioProcessor::savePreset(const juce::File& file)
+{
+    auto xml = parameters.copyState().createXml();
+    return xml != nullptr && xml->writeTo(file);
+}
+
+bool SquareAudioVisualizerAudioProcessor::loadPreset(const juce::File& file)
+{
+    auto xml = juce::parseXML(file);
+    if (xml == nullptr || !xml->hasTagName(parameters.state.getType()))
+        return false;
+
+    parameters.replaceState(juce::ValueTree::fromXml(*xml));
+    return true;
+}
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

@@ -60,6 +60,7 @@ namespace Parameters
 	static const String nameSparks = "sparks";
 
 	static const String nameBrightness = "brightness";
+	static const String nameSaturation = "saturation";
 
 	static const int defaultSubdivisions = 25;
 	static const int defaultSize = 100;
@@ -71,6 +72,7 @@ namespace Parameters
 	static const int defaultWaterfallSubdivisions = 20;
 	static const float defaultInputLevelDb = 0.0f;
 	static const float  defaultBrightness = 0.0f;
+	static const float defaultSaturation = 100.0f;
 
 	static const bool defaultZcrEnabled = false;
 	static const bool defaultPitchEnabled = false;
@@ -194,6 +196,8 @@ namespace Parameters
 		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameEchoAmount, id++), "Echo Amount", NormalisableRange<float>(0.0f, 100.0f, 1.0f), defaultEchoAmount));
 		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameEchoDelay, id++), "Echo Delay", NormalisableRange<float>(50.0f, 2000.0f, 1.0f), defaultEchoDelay));
 		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameSparks, id++), "Sparks", NormalisableRange<float>(0.0f, 100.0f, 1.0f), defaultSparks));
+
+		params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameSaturation, id++), "Saturation", NormalisableRange<float>(0.0f, 200.0f, 1.0f), defaultSaturation));
 
 		return { params.begin(), params.end() };
 	}

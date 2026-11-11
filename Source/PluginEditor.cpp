@@ -41,6 +41,9 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
     setupKnob(colorSeedSlider, colorSeedLabel, "Color");
     setupKnob(brightnessSlider, brightnessLabel, "Brightness");
 
+    setupKnob(saturationSlider, saturationLabel, "Saturation");
+    saturationSlider.setTextValueSuffix(" %");
+
     setupKnob(echoAmountSlider, echoAmountLabel, "Echo");
     setupKnob(echoDelaySlider, echoDelayLabel, "Echo delay");
     echoDelaySlider.setTextValueSuffix(" ms");
@@ -97,6 +100,11 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
 
     addAndMakeVisible(filterDisplay);
 
+    addAndMakeVisible(savePresetButton);
+    addAndMakeVisible(loadPresetButton);
+    savePresetButton.onClick = [this] { savePresetClicked(); };
+    loadPresetButton.onClick = [this] { loadPresetClicked(); };
+
     zcrToggleAttachment = std::make_unique<ButtonAttachment>(valueTreeState, Parameters::nameZcrEnabled, zcrToggle);
     pitchToggleAttachment = std::make_unique<ButtonAttachment>(valueTreeState, Parameters::namePitchEnabled, pitchToggle);
     subdivisionsAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameSubdivision, subdivisionsSlider);
@@ -133,6 +141,7 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
     highCutAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameFilterHighCut, highCutSlider);
 
     brightnessAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameBrightness, brightnessSlider);
+    saturationAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameSaturation, saturationSlider);
 
     echoAmountAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameEchoAmount, echoAmountSlider);
     echoDelayAttachment = std::make_unique<SliderAttachment>(valueTreeState, Parameters::nameEchoDelay, echoDelaySlider);
@@ -150,13 +159,17 @@ SquareAudioVisualizerAudioProcessorEditor::SquareAudioVisualizerAudioProcessorEd
 
     inputLevelSlider.setTextValueSuffix(" dB");
 
+    presetNameLabel.setFont(juce::Font(11.0f));
+    presetNameLabel.setJustificationType(juce::Justification::centredLeft);
+    addAndMakeVisible(presetNameLabel);
+
     dimensionModeBox.onChange = [this] { updateControlVisibility(); };
     mode3DBox.onChange = [this] { updateControlVisibility(); };
     lfoSyncToggle.onClick = [this] { updateControlVisibility(); };
     updateControlVisibility();
 
     addAndMakeVisible(m_GLComponent);
-    setSize(960, 920);
+    setSize(960, 956);
 }
 
 SquareAudioVisualizerAudioProcessorEditor::~SquareAudioVisualizerAudioProcessorEditor()
@@ -235,7 +248,7 @@ void SquareAudioVisualizerAudioProcessorEditor::updateControlVisibility()
 void SquareAudioVisualizerAudioProcessorEditor::resized()
 {
     auto bounds = getLocalBounds();
-    auto controlsArea = bounds.removeFromBottom(440).reduced(8);
+    auto controlsArea = bounds.removeFromBottom(476).reduced(8);
     m_GLComponent.setBounds(bounds);
 
     const int slotWidth = 80;
@@ -263,6 +276,14 @@ void SquareAudioVisualizerAudioProcessorEditor::resized()
         }
     };
 
+    auto presetRow = controlsArea.removeFromTop(comboHeight);
+    savePresetButton.setBounds(presetRow.removeFromRight(120));
+    presetRow.removeFromRight(8);
+    loadPresetButton.setBounds(presetRow.removeFromRight(120));
+    presetRow.removeFromRight(12);
+    presetNameLabel.setBounds(presetRow);
+    controlsArea.removeFromTop(8);
+
     auto modeRow = controlsArea.removeFromTop(comboHeight);
     dimensionModeBox.setBounds(modeRow.removeFromLeft(130));
     modeRow.removeFromLeft(8);
@@ -288,7 +309,8 @@ void SquareAudioVisualizerAudioProcessorEditor::resized()
     {
         visualTitle = "VISUAL - 2D";
         layoutKnobRow(visualGroupArea, { {&subdivisionsSlider,&subdivisionsLabel}, {&sizeSlider,&sizeLabel},
-            {&pointSizeSlider,&pointSizeLabel}, {&colorSeedSlider,&colorSeedLabel}, {&brightnessSlider,&brightnessLabel}, {&sparksSlider,&sparksLabel} });
+            {&pointSizeSlider,&pointSizeLabel}, {&colorSeedSlider,&colorSeedLabel}, {&brightnessSlider,&brightnessLabel}, {&saturationSlider,&saturationLabel},
+            {&sparksSlider,&sparksLabel} });
     }
     else if (m3 == 1)
     {
@@ -296,14 +318,14 @@ void SquareAudioVisualizerAudioProcessorEditor::resized()
         layoutKnobRow(visualGroupArea, { {&cubeSubdivisionsSlider,&cubeSubdivisionsLabel}, {&cubeSizeSlider,&cubeSizeLabel},
             {&cubePointSizeSlider,&cubePointSizeLabel}, {&cubeDisplacementSlider,&cubeDisplacementLabel},
             {&cubeRotationSpeedSlider,&cubeRotationSpeedLabel}, {&colorSeedSlider,&colorSeedLabel}, {&brightnessSlider,&brightnessLabel},
-            {&echoAmountSlider,&echoAmountLabel}, {&echoDelaySlider,&echoDelayLabel} });
+            {&saturationSlider,&saturationLabel},{&echoAmountSlider,&echoAmountLabel}, {&echoDelaySlider,&echoDelayLabel} });
     }
     else
     {
         visualTitle = "VISUAL - WATERFALL";
         layoutKnobRow(visualGroupArea, { {&waterfallSubdivisionsSlider,&waterfallSubdivisionsLabel}, {&waterfallSizeSlider,&waterfallSizeLabel},
             {&waterfallPointSizeSlider,&waterfallPointSizeLabel}, {&waterfallDisplacementSlider,&waterfallDisplacementLabel},
-            {&colorSeedSlider,&colorSeedLabel}, {&brightnessSlider,&brightnessLabel}, {&echoAmountSlider,&echoAmountLabel}, {&echoDelaySlider,&echoDelayLabel} });
+            {&colorSeedSlider,&colorSeedLabel}, {&brightnessSlider,&brightnessLabel}, {&saturationSlider,&saturationLabel}, {&echoAmountSlider,&echoAmountLabel}, {&echoDelaySlider,&echoDelayLabel} });
     }
 
     controlsArea.removeFromTop(8);
@@ -357,7 +379,7 @@ void SquareAudioVisualizerAudioProcessorEditor::resized()
 void SquareAudioVisualizerAudioProcessorEditor::loadTextureButtonClicked()
 {
     fileChooser = std::make_unique<juce::FileChooser>(
-        "Scegli un'immagine per la texture",
+        "Choose an image for the texture",
         juce::File(),
         "*.png;*.jpg;*.jpeg");
 
@@ -368,5 +390,47 @@ void SquareAudioVisualizerAudioProcessorEditor::loadTextureButtonClicked()
         auto file = chooser.getResult();
         if (file.existsAsFile())
             m_GLComponent.requestTexture(file);
+    });
+}
+
+static juce::File getPresetFolder()
+{
+    auto folder = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
+        .getChildFile("SquareAudioVisualizer Presets");
+    folder.createDirectory();
+    return folder;
+}
+
+void SquareAudioVisualizerAudioProcessorEditor::savePresetClicked()
+{
+    fileChooser = std::make_unique<juce::FileChooser>("Save preset", getPresetFolder(), "*.xml");
+
+    auto flags = juce::FileBrowserComponent::saveMode
+        | juce::FileBrowserComponent::canSelectFiles
+        | juce::FileBrowserComponent::warnAboutOverwriting;
+
+    fileChooser->launchAsync(flags, [this](const juce::FileChooser& chooser)
+    {
+        auto file = chooser.getResult();
+        if (file == juce::File())
+            return;
+
+        file = file.withFileExtension(".xml");
+        if (audioProcessor.savePreset(file))
+            presetNameLabel.setText(file.getFileNameWithoutExtension(), juce::dontSendNotification);
+    });
+}
+
+void SquareAudioVisualizerAudioProcessorEditor::loadPresetClicked()
+{
+    fileChooser = std::make_unique<juce::FileChooser>("Load preset", getPresetFolder(), "*.xml");
+
+    auto flags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+    fileChooser->launchAsync(flags, [this](const juce::FileChooser& chooser)
+    {
+        auto file = chooser.getResult();
+        if (file.existsAsFile() && audioProcessor.loadPreset(file))
+            presetNameLabel.setText(file.getFileNameWithoutExtension(), juce::dontSendNotification);
     });
 }

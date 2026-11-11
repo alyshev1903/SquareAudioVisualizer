@@ -147,6 +147,7 @@ void SquareGridRenderer::render(int currentWidth, int currentHeight)
 
     shader->Bind();
     shader->SetUniform1f("u_Pale", pale);
+    shader->SetUniform1f("u_Saturation", saturation);
     camera->Matrix(45.0f, 0.1f, 1000.0f, *shader, currentWidth, currentHeight);
     shader->SetUniform1i("u_UseTexture", useTexture ? 1 : 0);
 

@@ -33,7 +33,7 @@ WaterfallRenderer::~WaterfallRenderer() {}
 void WaterfallRenderer::rebuildGeometry()
 {
     const int n = subdivisions + 1;
-    history.assign((size_t)n, std::vector<float>((size_t)n, 0.0f));
+    history.assign((size_t)(n + maxEchoShiftRows), std::vector<float>((size_t)n, 0.0f));
 
     vertices.assign((size_t)n * (size_t)n, GridVertex{});
 
@@ -122,11 +122,11 @@ void WaterfallRenderer::updateFromAudio()
 
     if (echoAmount > 0.001f)
     {
-        const int shift = juce::jlimit(0, n - 1, (int)std::round(echoDelayMs * 0.001f * Parameters::waterfallRowsPerSecond));
+        const int shift = juce::jlimit(0, maxEchoShiftRows, (int)std::round(echoDelayMs * 0.001f * Parameters::waterfallRowsPerSecond));
 
         for (int row = 0; row < n; ++row)
         {
-            const int delayedRow = juce::jmin(row + shift, n - 1);
+            const int delayedRow = row + shift;
             for (int col = 0; col < n; ++col)
             {
                 const float value = history[(size_t)delayedRow][(size_t)col];
@@ -155,6 +155,7 @@ void WaterfallRenderer::render(int currentWidth, int currentHeight)
 
     shader->Bind();
 	shader->SetUniform1f("u_Pale", pale);
+    shader->SetUniform1f("u_Saturation", saturation);
     camera->Matrix(45.0f, 0.1f, 2000.0f, *shader, currentWidth, currentHeight);
     shader->SetUniform1i("u_UseTexture", 0);
 

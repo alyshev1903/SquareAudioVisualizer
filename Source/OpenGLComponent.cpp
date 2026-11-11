@@ -63,6 +63,7 @@ void OpenGLComponent::pullParameters()
 
     const float echoAmount = param(Parameters::nameEchoAmount) * 0.01f;
     const float echoDelay = param(Parameters::nameEchoDelay);
+    const float saturation = param(Parameters::nameSaturation) * 0.01f;
 
     if (cubeRenderer != nullptr)
     {
@@ -92,6 +93,7 @@ void OpenGLComponent::pullParameters()
         renderer.setColorSeed(colorSeed);
         renderer.setBrightnessAmount(brightnessAmount);
         renderer.setLfoTarget(lfoTarget);
+        renderer.setSaturation(saturation);
     });
 
     renderer2D->setWaveAmount(param(Parameters::nameSparks) * 0.01f);

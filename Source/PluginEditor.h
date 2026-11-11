@@ -29,6 +29,9 @@ private:
     void updateControlVisibility();
     void drawGroup(juce::Graphics& g, juce::Rectangle<int> area, const juce::String& title);
 
+    void savePresetClicked();
+    void loadPresetClicked();
+
     juce::Slider subdivisionsSlider, sizeSlider, pointSizeSlider, inputLevelSlider;
     juce::Label  subdivisionsLabel, sizeLabel, pointSizeLabel, inputLevelLabel;
 
@@ -41,11 +44,11 @@ private:
     juce::Slider colorSeedSlider;
     juce::Label  colorSeedLabel;
 
-    juce::Slider   lfoRateSlider;
-    juce::Label    lfoRateLabel, lfoTargetLabel;
+    juce::Slider  lfoRateSlider;
+    juce::Label   lfoRateLabel, lfoTargetLabel;
 
-    juce::Slider   gateThresholdSlider;
-    juce::Label    gateThresholdLabel, gateTargetLabel;
+    juce::Slider  gateThresholdSlider;
+    juce::Label   gateThresholdLabel, gateTargetLabel;
 
     juce::Slider lowCutSlider, highCutSlider;
     juce::Label  lowCutLabel, highCutLabel;
@@ -53,8 +56,13 @@ private:
     juce::Slider brightnessSlider;
     juce::Label  brightnessLabel;
 
+    juce::Slider saturationSlider;
+    juce::Label  saturationLabel;
+
     juce::Slider echoAmountSlider, echoDelaySlider, sparksSlider;
     juce::Label  echoAmountLabel, echoDelayLabel, sparksLabel;
+
+    juce::Label  presetNameLabel;
 
     juce::ComboBox pointOrTextureBox;
     juce::ComboBox dimensionModeBox;
@@ -66,6 +74,8 @@ private:
     juce::ToggleButton zcrToggle{ "Onset" };
     juce::ToggleButton pitchToggle{ "Pitch" };
     juce::ToggleButton lfoSyncToggle{ "Sync" };
+    juce::TextButton savePresetButton{ "Save preset" };
+    juce::TextButton loadPresetButton{ "Load preset" };
 
     juce::Rectangle<int> visualGroupArea, audioGroupArea, lfoGroupArea, gateGroupArea;
     juce::String visualTitle;
@@ -92,6 +102,7 @@ private:
 
     std::unique_ptr<SliderAttachment> lowCutAttachment, highCutAttachment;
     std::unique_ptr<SliderAttachment> brightnessAttachment;
+    std::unique_ptr<SliderAttachment> saturationAttachment;
 
     std::unique_ptr<SliderAttachment> echoAmountAttachment, echoDelayAttachment, sparksAttachment;
 

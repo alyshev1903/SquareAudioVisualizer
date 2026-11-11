@@ -16,6 +16,7 @@ uniform mat4 u_Camera;
 uniform int  u_Pass;
 uniform float u_SizeScale;
 uniform float u_Pale;
+uniform float u_Saturation;
 
 const float REF_DISTANCE = 500.0;
 const float GLOW_SCALE = 3.0;
@@ -34,7 +35,10 @@ void main()
     gl_PointSize = clamp(size, 1.0, 64.0);
 
     v_TexCoord = texCoord;
-    v_Color = mix(aColor, vec3(1.0), u_Pale * MAX_PALE);
+    
+    float luma = dot(aColor, vec3(0.299, 0.587, 0.114));
+    vec3 saturated = clamp(mix(vec3(luma), aColor, u_Saturation), 0.0, 1.0);
+    v_Color = mix(saturated, vec3(1.0), u_Pale * MAX_PALE);
     v_Depth = gl_Position.w;
 }
 

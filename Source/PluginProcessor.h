@@ -40,6 +40,9 @@ public:
     void openExternalWindow();
     bool isExternalWindowOpen() const { return externalWindow != nullptr; }
 
+    bool savePreset(const juce::File& file);
+    bool loadPreset(const juce::File& file);
+
     SharedAudioData& getSharedAudioData() { return sharedAudioData; }
 
 private:
